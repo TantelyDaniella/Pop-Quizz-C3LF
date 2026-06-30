@@ -1,0 +1,103 @@
+@import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --color-primary: var(--primary);
+  --color-primary-text: var(--primary-text-color);
+  --color-secondary-text: var(--secondary-text);
+  --color-bg-main: var(--bg-main);
+  --color-surface: var(--surface);
+  --color-border-color: var(--border-color);
+  --color-input-bg: var(--input-bg);
+}
+
+:root {
+  --primary: #744af3;
+  --primary-text-color: #333333;
+  --secondary-text: #6b7280;
+  --bg-main: #fdf7f7;
+  --surface: rgb(255 246 246 / 0.64);
+  --border-color: rgba(107, 114, 128, 0.2);
+  --input-bg: rgba(229, 231, 235, 0.4);
+}
+
+:root:where(.dark) {
+  --primary: #855ffd;
+  --primary-text-color: #f3f4f6;
+  --secondary-text: #9ca3af;
+  --bg-main: #181923;
+  --surface: rgb(35 37 48 / 0.71);
+  --border-color: rgba(255, 255, 255, 0.1);
+  --input-bg: #3b364a;
+}
+
+body {
+  background-color: var(--bg-main);
+  color: var(--primary-text-color);
+  @apply transition-colors duration-300;
+}
+
+* {
+  font-family: "Inter", sans-serif;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: "Sora", sans-serif;
+}
+
+input {
+  @apply rounded-md py-2 px-10 font-thin bg-(--input-bg)/60 border border-gray-400/20 outline-none
+  focus:ring-2 focus:ring-(--primary)/80 transition-colors;
+}
+
+.btn-primary {
+  @apply bg-(--primary) text-white rounded-md px-6 py-2 font-medium hover:opacity-90 transition-all cursor-pointer;
+}
+
+.small-text {
+  @apply text-sm text-(--secondary-text);
+}
+
+.menu-item {
+  @apply flex items-center gap-3 px-3 py-2 rounded-2xl text-sm hover:bg-current/5 transition-colors cursor-pointer w-full;
+}
+
+.menu-item-active {
+  @apply flex items-center gap-3 px-3 py-2 rounded-2xl text-sm font-medium
+  text-(--primary) bg-(--primary)/10 cursor-pointer w-full;
+}
+
+.btn-outline {
+  @apply border border-(--border-color) px-4 rounded-md bg-transparent transition-colors;
+}
+
+.btn-secondary {
+  @apply border border-(--primary)
+  text-(--primary)
+  flex gap-1 items-center
+  rounded-full px-4 py-1
+  font-medium
+  cursor-pointer
+  transition-all duration-300
+  hover:bg-(--primary)
+  hover:text-(--bg-main);
+}
+
+.surface-card {
+  @apply bg-(--surface) border border-(--border-color) rounded-xl p-4  transition-all;
+}
+
+.big-title {
+  font-family: "Urbanist", sans-serif;
+  font-weight: 700;
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin-slow {
+  animation: spin-slow 12s linear infinite;
+}
