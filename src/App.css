@@ -19,6 +19,7 @@
 
 :root {
   --primary: #744af3;
+  --accent: #e71717;
   --primary-text-color: #333333;
   --secondary-text: #6b7280;
   --bg-main: #fdf7f7;
@@ -61,10 +62,11 @@
 
 :root:where(.dark) {
   --primary: #855ffd;
+  --accent: #888ffd;
   --primary-text-color: #f3f4f6;
   --secondary-text: #9ca3af;
   --bg-main: #181923;
-  --surface: rgb(35 37 48 / 0.71);
+  --surface: rgb(26 26 33);
   --border-color: rgba(255, 255, 255, 0.1);
   --input-bg: #3b364a;
 }
@@ -96,7 +98,7 @@ input:-webkit-autofill:focus {
 }
 
 .btn-primary {
-  @apply bg-(--primary) text-white rounded-md px-6 py-2 font-medium hover:opacity-90 transition-all cursor-pointer;
+  @apply bg-primary text-white rounded-md px-6 py-2 font-medium hover:opacity-90 transition-all cursor-pointer;
 }
 
 .small-text {
