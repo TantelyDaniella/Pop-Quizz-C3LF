@@ -11,5 +11,9 @@ export const AuthService ={
                 console.log("RESPONSE : ", res)
                 return res;
         },
-        authenticate : (data : loginData) => Api.authenticateUser(data),
+        authenticate : async (data : loginData) => {
+                const res = await Api.authenticateUser(data)
+                console.log("RESPONSE : ", res)
+                return res
+        },
 }

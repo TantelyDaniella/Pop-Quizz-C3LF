@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import {Loader2, CheckCircle, TriangleAlert} from "lucide-react";
+import {Loader2, TriangleAlert, CircleCheck} from "lucide-react";
 import {Dialog, DialogClose, DialogContent, DialogTitle} from "@/components/ui/dialog";
 
 type Props = {
@@ -39,7 +39,7 @@ export default function ValidationDialog({
                 )}
                 {isSuccess && (
                     <>
-                        <CheckCircle className="w-8 h-8 text-green-500" />
+                        <CircleCheck className="w-8 h-8 text-green-500" />
                         <DialogTitle className="">{successMessage}</DialogTitle>
                         {!autoClose && (
                             <button className="btn-primary" onClick={onClose}>Fermer</button>

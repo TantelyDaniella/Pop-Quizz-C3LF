@@ -3,6 +3,8 @@ import AuthRoutes from "./AuthRoutes.tsx";
 import {NavigationProvider} from "../context/NavigationContext.tsx";
 import UserRoutes from "./UserRoutes.tsx"
 import AdminRoutes from "./AdminRoutes.tsx"
+import ProtectedRoute from "@/routes/ProtectedRoute.tsx";
+import LoginForm from "@/components/auth/LoginForm.tsx";
 
 export default function AppRouter() {
     return (
@@ -10,9 +12,9 @@ export default function AppRouter() {
             <NavigationProvider>
                 <Routes>
                     {AuthRoutes}
-                    {UserRoutes}
-                    {AdminRoutes}
-                    <Route path="*" element={<h1>LOGIN</h1>} />
+                    <Route element={<ProtectedRoute requiredRole={"player"} />}> {UserRoutes} </Route>
+                    <Route element={<ProtectedRoute requiredRole={"admin"}/>}> {AdminRoutes} </Route>
+                    <Route path="*" element={<LoginForm/>} />
                 </Routes>
             </NavigationProvider>
         </BrowserRouter>
