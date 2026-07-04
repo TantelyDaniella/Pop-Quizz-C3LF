@@ -5,9 +5,9 @@ import type {loginData, registerData} from "../type/auth.types.ts";
 const Api = AuthApi()
 
 export const AuthService ={
-        register : (data : registerData) => {
+        register : async (data : registerData) => {
                 console.log("DATA : ", data)
-                const res = Api.createUser(data)
+                const res = await Api.createUser(data)
                 console.log("RESPONSE : ", res)
                 return res;
         },
