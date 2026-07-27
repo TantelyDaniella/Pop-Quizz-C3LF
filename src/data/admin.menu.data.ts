@@ -1,6 +1,11 @@
 import {
     type LucideIcon,
-    HomeIcon,
+    House,
+    Gamepad2,
+    CircleHelp,
+    Users,
+    Settings,
+    Trophy
 } from "lucide-react";
 
 export interface AdminMenuItem {
@@ -11,13 +16,43 @@ export interface AdminMenuItem {
     submenu?: AdminMenuItem[];
 }
 
-// @ts-ignore
 const adminMenuData: AdminMenuItem[] = [
     {
         id: "1",
         name: "Accueil",
-        icon: HomeIcon,
+        icon: House,
         path: "/admin",
+    },
+ 
+    {
+        id: "2",
+        name: "Questions",
+        icon: CircleHelp,
+        path: "/admin/question",
+    },
+    {
+        id: "3",
+        name: "Joueurs",
+        icon: Users,
+        path: "/admin/player",
+    },
+       {
+        id: "4",
+        name: "Quizz",
+        icon: Gamepad2,
+        path: "/admin/quizz",
+    },
+    {
+        id: "5",
+        name: "Résultats",
+        icon: Trophy,
+        path: "/admin/result",
+    },
+    {
+        id: "6",
+        name: "Paramètres",
+        icon: Settings,
+        path: "/admin/setting",
     },
 ];
 
