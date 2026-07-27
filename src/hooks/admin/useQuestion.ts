@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { AdminPlayerApi } from "../../api/admin.player.api";
-import type { Player } from "../../types/player";
+import { AdminQuestionApi } from "../../api/admin.question.api";
+import type { QuestionResponse } from "../../types/question";
 
 export function useQuestion() {
   const {
@@ -8,13 +8,13 @@ export function useQuestion() {
     isLoading,
     error,
     refetch,
-  } = useQuery<Player[]>({
-    queryKey: ["players"],
-    queryFn: () => AdminPlayerApi.list(),
+  } = useQuery<QuestionResponse>({
+    queryKey: ["questions"],
+    queryFn: () => AdminQuestionApi.list(),
   });
 
   return {
-    players: data ?? [],
+    questions: data?.data ?? [],
     isLoading,
     error,
     refetch,
