@@ -1,9 +1,13 @@
 import SectionNavigation from "../../components/admin/SectionNavigation";
 import { adminSections } from "../../data/admin.section.data";
 import { useState } from "react";
+import { useQuestion } from "../../hooks/admin/useQuestion";
+
 
 export default function QuestionsPage() {
   const [search, setSearch] = useState("");
+  const {players} = useQuestion();
+  console.log("data is ", players)
 
   const handleAddQuestion = () => {
     console.log("Ajouter une question");

@@ -1,8 +1,10 @@
 import SectionNavigation from "../../components/admin/SectionNavigation";
 import { adminSections } from "../../data/admin.section.data";
+import PlayerList from "../../components/admin/PlayerList";
 import { useState } from "react";
 export default function PlayerPage() {
     const [search, setSearch] = useState("");
+    
   return (
     <div className="space-y-6">
       <div>
@@ -28,6 +30,7 @@ export default function PlayerPage() {
         }}    
             />
 
+      <PlayerList />
       {/* Contenu de la page */}
     </div>
   );
