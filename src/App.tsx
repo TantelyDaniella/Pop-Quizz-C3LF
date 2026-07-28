@@ -1,15 +1,15 @@
 import './App.css'
-import TanstackProvider from "./provider/TanstackProvider.tsx";
-import AppRouter from "./routes/AppRouter.tsx";
-import SocketProvider from "./context/SocketContext.tsx";
-import AppToaster from "@/components/common/AppToaster.tsx";
+import TanstackProvider from "./app/provider/TanstackProvider";
+import AppRouter from "./routes/app.router";
+import SocketProvider from "./app/context/SocketContext";
+import AppToaster from "@/components/common/AppToaster";
 
 function App() {
   return (
     <TanstackProvider>
       <SocketProvider>
-          <AppToaster/>
-          <AppRouter/>
+        <AppToaster />
+        <AppRouter />
       </SocketProvider>
     </TanstackProvider>
   )

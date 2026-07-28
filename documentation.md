@@ -16,7 +16,7 @@ src/
 ├── config/             # Configuration globale de l'application (constantes)
 ├── context/            # Gestion de l'état global via React Context (ex: AuthContext, SocketContext)
 ├── hooks/              # Hooks personnalisés (ex: useAuth, useSocket)
-├── layouts/            # Structures de mise en page de l'application (ex: AuthLayout, AppLayout)
+├── layouts/            # Structures de mise en page de l'application (ex: AuthLayout, PlayerLayout)
 ├── modules/            # Modules réutilisables à travers l'application (ex: api.client.ts)
 ├── pages/              # Composants principaux représentant les vues / routes de l'application
 ├── routes/             # Configuration du routage et gestion des accès (AppRouter, ProtectedRoute)
