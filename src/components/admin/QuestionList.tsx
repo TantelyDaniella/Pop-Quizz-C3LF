@@ -4,7 +4,16 @@ import { useState } from "react";
 import type { Question } from "../../types/question";
 import ConfirmModal from "../common/ConfirmationModal";
 import { toast } from "sonner";
-export default function QuestionList() {
+
+type QuestionListProps = {
+  category?: string;
+  search?: string;
+};
+
+export default function QuestionList({
+  category,
+  search = "",
+}: QuestionListProps) {
   const {
     questions,
     isLoading,
@@ -38,6 +47,24 @@ export default function QuestionList() {
       </div>
     );
   }
+
+  const filteredQuestions = questions.filter((question) => {
+    // Filtre catégorie
+    const matchesCategory =
+      !category ||
+      question.category === category;
+
+    // Filtre recherche
+    const searchValue = search.toLowerCase().trim();
+
+    const matchesSearch =
+      !searchValue ||
+      question.statement
+        .toLowerCase()
+        .includes(searchValue);
+
+    return matchesCategory && matchesSearch;
+  });
 
   const formatCategory = (category: string) => {
     const categories: Record<string, string> = {
@@ -113,8 +140,8 @@ export default function QuestionList() {
           </thead>
 
           <tbody className="divide-y divide-slate-700">
-            {questions.length > 0 ? (
-              questions.map((question) => (
+            {filteredQuestions.length > 0 ? (
+              filteredQuestions.map((question) => (
                 <tr
                   key={question.questionId}
                   className="transition-colors hover:bg-slate-800"
@@ -191,8 +218,17 @@ export default function QuestionList() {
             )}
           </tbody>
         </table>
+        
       </div>
-
+      <div className="flex justify-end border-t border-gray-200 pt-4">
+      <span className="text-sm text-white">
+        Total :{" "}
+        <span className="font-semibold text-white">
+          {filteredQuestions.length}
+        </span>{" "}
+        question{filteredQuestions.length > 1 ? "s" : ""}
+      </span>
+      </div>
       <ConfirmModal
         open={questionToDelete !== null}
         title="Supprimer la question ?"

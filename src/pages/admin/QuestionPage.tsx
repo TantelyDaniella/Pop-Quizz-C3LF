@@ -3,18 +3,35 @@ import { adminSections } from "../../data/admin.section.data";
 import { useState } from "react";
 import QuestionList from "../../components/admin/QuestionList";
 import AddQuestionForm from "../../components/admin/AddQuestionForm";
+import { useLocation } from "react-router-dom";
 
 export default function QuestionsPage() {
   const [search, setSearch] = useState("");
-   const [showAddForm, setShowAddForm] = useState(false);
+  const [showAddForm, setShowAddForm] = useState(false);
 
-  const handleAddQuestion = () => {
-    setShowAddForm(true);
+  const location = useLocation();
+
+  const categoryMap: Record<string, string | undefined> = {
+    "/admin/questions": undefined,
+
+    "/admin/questions/general-knowledge":
+      "culture_generale",
+
+    "/admin/questions/linux-commands":
+      "linux",
+
+    "/admin/questions/shell-programming":
+      "shell",
   };
+
+  const currentCategory = categoryMap[location.pathname];
+  const handleAddQuestion = () => {
+      setShowAddForm(true);
+    };
 
   const handleCloseAddForm = () => {
-    setShowAddForm(false);
-  };
+      setShowAddForm(false);
+    };
 
 
   return (
@@ -43,7 +60,10 @@ export default function QuestionsPage() {
       />
 
       {/* Liste des questions */}
-       <QuestionList />
+       <QuestionList 
+          category={currentCategory}
+          search={search}
+       />
       {/* Formulaire d'ajout */}
       {showAddForm && (
         <AddQuestionForm

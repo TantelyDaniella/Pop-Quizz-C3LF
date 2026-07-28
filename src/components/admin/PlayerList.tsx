@@ -4,7 +4,15 @@ import { useState } from "react";
 import type { Player } from "../../types/player";
 import ConfirmModal from "../common/ConfirmationModal";
 import {toast} from "sonner"
-export default function PlayerList() {
+type PlayerListProps = {
+  category?: string;
+  search?: string;
+};
+
+export default function QuestionList({
+  category,
+  search = "",
+}: PlayerListProps)  {
   
   const {
     players,
@@ -37,6 +45,26 @@ export default function PlayerList() {
     );
   }
 
+   const filteredPlayers = players.filter((player) => {
+    // Filtre catégorie
+   /* const matchesCategory =
+      !category ||
+      player.category === category;
+*/
+    // Filtre recherche
+    const searchValue = search.toLowerCase().trim();
+
+    const matchesSearch =
+      !searchValue ||
+      player.username
+        .toLowerCase()
+        .includes(searchValue) ||
+      player.email
+        .toLowerCase()
+        .includes(searchValue);
+    return matchesSearch;
+  });
+
   const handleEdit = (playerId: number) => {
     console.log("Modifier le joueur :", playerId);
   };
@@ -67,8 +95,8 @@ export default function PlayerList() {
           </thead>
 
           <tbody className="divide-y divide-slate-700">
-            {players.length > 0 ? (
-              players.map((player) => (
+            {filteredPlayers.length > 0 ? (
+              filteredPlayers.map((player) => (
                 <tr
                   key={player.playerId}
                   className="transition-colors hover:bg-slate-800"
@@ -147,7 +175,15 @@ export default function PlayerList() {
           </tbody>
         </table>
       </div>
-
+    <div className="flex justify-end border-t border-gray-200 pt-4">
+      <span className="text-sm text-white">
+        Total :{" "}
+        <span className="font-semibold text-white">
+          {filteredPlayers.length}
+        </span>{" "}
+        Joueur{filteredPlayers.length > 1 ? "s" : ""}
+      </span>
+      </div>
      <ConfirmModal
       open={playerToDelete !== null}
       title="Supprimer le joueur ?"

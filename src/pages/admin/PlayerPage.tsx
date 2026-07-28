@@ -2,9 +2,23 @@ import SectionNavigation from "../../components/admin/SectionNavigation";
 import { adminSections } from "../../data/admin.section.data";
 import PlayerList from "../../components/admin/PlayerList";
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 export default function PlayerPage() {
     const [search, setSearch] = useState("");
+    const location = useLocation();
+
+    const categoryMap: Record<string, string | undefined> = {
+      "/admin/player": undefined,
+
+      "/admin/player/active":
+        "active",
+
+      "/admin/player/inactive":
+        "inactive",
+    };
     
+
+   const currentCategory = categoryMap[location.pathname];
   return (
     <div className="space-y-6">
       <div>
@@ -30,7 +44,10 @@ export default function PlayerPage() {
         }}    
             />
 
-      <PlayerList />
+      <PlayerList 
+        category={currentCategory}
+        search={search}
+      />
       {/* Contenu de la page */}
     </div>
   );

@@ -1,5 +1,5 @@
-import { NavLink } from "react-router-dom";
-import { Plus,  Search } from "lucide-react";
+import { NavLink, useLocation } from "react-router-dom";
+import { Plus, Search } from "lucide-react";
 import type { NavigationItem } from "../../data/admin.section.data";
 
 interface SectionNavigationProps {
@@ -17,29 +17,40 @@ interface SectionNavigationProps {
   };
 }
 
+const isActive = (path: string, currentPath: string) => {
+  if (path === "/admin/questions") {
+    return currentPath === path;
+  }
+
+  return currentPath === path;
+};
+
 export default function SectionNavigation({
   items,
   search,
   addAction,
 }: SectionNavigationProps) {
+  const location = useLocation();
+
   return (
     <div className="flex items-center justify-between border-b border-gray-200">
       <nav className="flex items-center gap-1">
         {items.map((item) => {
           const Icon = item.icon;
+          const active = isActive(item.path, location.pathname);
 
           return (
             <NavLink
               key={item.path}
               to={item.path}
               end={item.path === "/admin/quiz"}
-              className={({ isActive }) =>
+              className={() =>
                 `flex items-center gap-2 px-4 py-3 text-sm font-medium
                 border-b-2 transition-colors
                 ${
-                  isActive
+                  active
                     ? "border-blue-600 text-blue-600"
-                    : "border-transparent text-gray-500 hover:text-gray-900"
+                    : "border-transparent text-gray-500 hover:shadow-sm hover:rounded-lg hover:bg-blue-600 hover:text-gray-900"
                 }`
               }
             >
@@ -50,7 +61,7 @@ export default function SectionNavigation({
         })}
       </nav>
 
-            {/* Barre d'outils */}
+      {/* Barre d'outils */}
       {(search || addAction) && (
         <div className="flex items-center justify-between gap-4">
           {/* Recherche */}
@@ -65,9 +76,7 @@ export default function SectionNavigation({
                 type="text"
                 value={search.value}
                 onChange={(e) => search.onChange(e.target.value)}
-                placeholder={
-                  search.placeholder ?? "Rechercher..."
-                }
+                placeholder={search.placeholder ?? "Rechercher..."}
                 className="w-full rounded-lg border border-gray-200 bg-white py-2.5 pl-10 pr-4 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-100"
               />
             </div>
