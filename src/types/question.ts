@@ -1,14 +1,14 @@
 export type QuestionCategory =
   | "culture_generale"
-  | "commandes_linux"
-  | "programmation_shell";
+  | "linux"
+  | "shell";
 
 export type QuestionType =
   | "multiple_choice"
-  | "command_input"
-  | "command_combination"
-  | "command_completion"
-  | "shell_programming";
+  | "command"
+  | "fill_blank"
+  | "combination"
+  | "shell_code";
 
 export type QuestionDifficulty =
   | "easy"
@@ -29,4 +29,20 @@ export type Question = {
 
 export type QuestionResponse = {
   data: Question[];
+};
+
+export type QuestionChoice = {
+  label: string;
+  content: string;
+  isCorrect: boolean;
+};
+export type CreateQuestionPayload = {
+  statement: string;
+  category: QuestionCategory;
+  type: QuestionType;
+  difficulty: QuestionDifficulty;
+  duration: number;
+  points: number;
+  explanation: string;
+  choices: QuestionChoice[];
 };

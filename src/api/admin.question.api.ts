@@ -1,13 +1,14 @@
 import createClient from "../modules/api.client";
+import type { CreateQuestionPayload } from "../types/question";
 const client = createClient("admin/questions");
 export const AdminQuestionApi = {
    
     list: () => client.get("list"),
-    create: (payload: { title: string; totalQuestions?: number; createdBy?: number }) =>
+    create: (payload: CreateQuestionPayload) =>
         client.post("create", payload),
-    update: (gameId: number, payload: { title?: string; status?: string; totalQuestions?: number }) =>
-        client.patch(`update/${gameId}`, payload),
-    remove: (gameId: number) => client.delete(`delete/${gameId}`)
+    update: (questionId: number, payload: { title?: string; status?: string; totalQuestions?: number }) =>
+        client.patch(`update/${questionId}`, payload),
+    remove: (questionId: number) => client.delete(`delete/${questionId}`)
 
         
 };

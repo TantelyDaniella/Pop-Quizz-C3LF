@@ -1,6 +1,9 @@
 import { Pencil, Trash2 } from "lucide-react";
-import { useQuestion } from "../../hooks/admin/useQuestion";
-
+import { useQuestion, useDeleteQuestion } from "../../hooks/admin/useQuestion";
+import { useState } from "react";
+import type { Question } from "../../types/question";
+import ConfirmModal from "../common/ConfirmationModal";
+import { toast } from "sonner";
 export default function QuestionList() {
   const {
     questions,
@@ -8,7 +11,13 @@ export default function QuestionList() {
     error,
   } = useQuestion();
 
-  console.log("Les questions sont :", questions);
+  const {
+      deleteQuestion,
+      isPending: isDeleting,
+    } = useDeleteQuestion();
+
+  const [questionToDelete, setQuestionToDelete] =
+    useState<Question | null>(null);
 
   if (isLoading) {
     return (
@@ -66,9 +75,6 @@ export default function QuestionList() {
     console.log("Modifier la question :", questionId);
   };
 
-  const handleDelete = (questionId: number) => {
-    console.log("Supprimer la question :", questionId);
-  };
 
   return (
     <div className="w-full">
@@ -163,7 +169,7 @@ export default function QuestionList() {
 
                       <button
                         type="button"
-                        onClick={() => handleDelete(question.questionId)}
+                        onClick={() => setQuestionToDelete(question)}
                         className="flex items-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700"
                       >
                         <Trash2 size={16} />
@@ -186,6 +192,34 @@ export default function QuestionList() {
           </tbody>
         </table>
       </div>
+
+      <ConfirmModal
+        open={questionToDelete !== null}
+        title="Supprimer la question ?"
+        message={
+          questionToDelete
+            ? `Voulez-vous vraiment supprimer cette question ? Cette action est irréversible.`
+            : ""
+        }
+        confirmLabel="Supprimer"
+        cancelLabel="Annuler"
+        variant="danger"
+        isLoading={isDeleting}
+        onCancel={() => setQuestionToDelete(null)}
+        onConfirm={() => {
+          if (!questionToDelete) return;
+
+          deleteQuestion(questionToDelete.questionId, {
+            onSuccess: () => {
+              toast.success("Question supprimée avec succès !");
+              setQuestionToDelete(null);
+            },
+            onError: () => {
+              toast.error("Impossible de supprimer la question.");
+            },
+          });
+        }}
+      />
     </div>
   );
 }

@@ -1,13 +1,22 @@
 import { Pencil, Trash2 } from "lucide-react";
-import { usePlayer } from "../../hooks/admin/usePlayer";
-
+import { usePlayer  , useDeletePlayer} from "../../hooks/admin/usePlayer";
+import { useState } from "react";
+import type { Player } from "../../types/player";
+import ConfirmModal from "../common/ConfirmationModal";
+import {toast} from "sonner"
 export default function PlayerList() {
+  
   const {
     players,
     isLoading,
     error,
   } = usePlayer();
-
+  const {
+    deletePlayer,
+    isPending: isDeleting,
+  } = useDeletePlayer();
+  const [playerToDelete, setPlayerToDelete] =
+  useState<Player | null>(null);
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-10">
@@ -30,10 +39,6 @@ export default function PlayerList() {
 
   const handleEdit = (playerId: number) => {
     console.log("Modifier le joueur :", playerId);
-  };
-
-  const handleDelete = (playerId: number) => {
-    console.log("Supprimer le joueur :", playerId);
   };
 
   return (
@@ -119,7 +124,7 @@ export default function PlayerList() {
                       {/* Supprimer */}
                       <button
                         type="button"
-                        onClick={() => handleDelete(player.playerId)}
+                        onClick={() => setPlayerToDelete(player)}
                         className="flex items-center gap-2 rounded-lg bg-red-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-red-700"
                       >
                         <Trash2 size={16} />
@@ -142,6 +147,34 @@ export default function PlayerList() {
           </tbody>
         </table>
       </div>
+
+     <ConfirmModal
+      open={playerToDelete !== null}
+      title="Supprimer le joueur ?"
+      message={
+        playerToDelete
+          ? `Voulez-vous vraiment supprimer "${playerToDelete.username}" ? Cette action est irréversible.`
+          : ""
+      }
+      confirmLabel="Supprimer"
+      cancelLabel="Annuler"
+      variant="danger"
+      isLoading={isDeleting}
+      onCancel={() => setPlayerToDelete(null)}
+      onConfirm={() => {
+        if (!playerToDelete) return;
+
+        deletePlayer(playerToDelete.playerId, {
+          onSuccess: () => {
+            toast.success("Joueur supprimé avec succès !");
+            setPlayerToDelete(null);
+          },
+          onError: () => {
+            toast.error("Impossible de supprimer le joueur.");
+          },
+        });
+      }}
+    />
     </div>
   );
 }

@@ -2,13 +2,20 @@ import SectionNavigation from "../../components/admin/SectionNavigation";
 import { adminSections } from "../../data/admin.section.data";
 import { useState } from "react";
 import QuestionList from "../../components/admin/QuestionList";
+import AddQuestionForm from "../../components/admin/AddQuestionForm";
 
 export default function QuestionsPage() {
   const [search, setSearch] = useState("");
+   const [showAddForm, setShowAddForm] = useState(false);
 
   const handleAddQuestion = () => {
-    console.log("Ajouter une question");
+    setShowAddForm(true);
   };
+
+  const handleCloseAddForm = () => {
+    setShowAddForm(false);
+  };
+
 
   return (
     <div className="space-y-6">
@@ -34,9 +41,15 @@ export default function QuestionsPage() {
           onClick: handleAddQuestion,
         }}
       />
-      <QuestionList />
 
       {/* Liste des questions */}
+       <QuestionList />
+      {/* Formulaire d'ajout */}
+      {showAddForm && (
+        <AddQuestionForm
+          onClose={handleCloseAddForm}
+        />
+      )}
     </div>
   );
 }

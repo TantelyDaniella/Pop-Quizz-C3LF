@@ -1,4 +1,4 @@
-/*import { useNavigation } from "../../context/navigation.context";
+import { useNavigation } from "../../context/NavigationContext.tsx";
 import { ThreeDots } from "react-loader-spinner";
 import Modal from "./Modal.tsx";
 
@@ -107,4 +107,4 @@ export default function ValidationModal({
             </div>
         </Modal>
     );
-}*/
+}
