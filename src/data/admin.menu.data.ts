@@ -28,19 +28,19 @@ const adminMenuData: AdminMenuItem[] = [
         id: "2",
         name: "Questions",
         icon: CircleHelp,
-        path: "/admin/question",
+        path: "/admin/questions",
     },
     {
         id: "3",
         name: "Joueurs",
         icon: Users,
-        path: "/admin/player",
+        path: "/admin/players",
     },
        {
         id: "4",
         name: "Quizz",
         icon: Gamepad2,
-        path: "/admin/quizz",
+        path: "/admin/quiz",
     },
     {
         id: "5",

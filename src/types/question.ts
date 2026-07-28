@@ -1,6 +1,6 @@
 export type QuestionCategory =
   | "culture_generale"
-  | "linux"
+  | "linux_command"
   | "shell";
 
 export type QuestionType =

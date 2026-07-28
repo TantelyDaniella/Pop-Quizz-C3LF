@@ -13,7 +13,9 @@ import {
   Trophy,
   BarChart3,
   History,
-  Flag,
+  Clock3,
+  PlayCircle,
+  CheckCircle2
 } from "lucide-react";
 
 export interface NavigationItem {
@@ -71,20 +73,20 @@ export const adminSections = {
       icon: LayoutDashboard,
     },
     {
-      label: "Round 1",
-      path: "/admin/quiz/round/1",
-      icon: Flag,
-    },
-    {
-      label: "Round 2",
-      path: "/admin/quiz/round/2",
-      icon: Flag,
-    },
-    {
-      label: "Round 3",
-      path: "/admin/quiz/round/3",
-      icon: Flag,
-    },
+    label: "En attente",
+    path: "/admin/quiz/waiting",
+    icon: Clock3,
+  },
+  {
+    label: "En cours",
+    path: "/admin/quiz/running",
+    icon: PlayCircle,
+  },
+  {
+    label: "Terminé",
+    path: "/admin/quiz/finished",
+    icon: CheckCircle2,
+  }
   ],
 
   results: [
