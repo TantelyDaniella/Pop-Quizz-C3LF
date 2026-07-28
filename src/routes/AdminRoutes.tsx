@@ -9,6 +9,7 @@ import QuizzPage from "../pages/admin/QuizzPage";
 import SettingPage from "../pages/admin/SettingPage";
 import ResultPage from "../pages/admin/ResultPage";
 import QuizLivePage from "../pages/admin/QuizLivePage";
+import QuizQuestionPage from "../pages/admin/QuizQuestionPage";
 
 const AdminRoutes = (
   <>
@@ -52,6 +53,10 @@ const AdminRoutes = (
     <Route
       path="/admin/quiz/:gameId/live"
       element={<QuizLivePage />}
+    />
+    <Route
+    path="/admin/quiz/:gameId/round/:roundNumber"
+    element={<QuizQuestionPage />}
     />
   </>
 );
