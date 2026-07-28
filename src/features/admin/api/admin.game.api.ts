@@ -15,5 +15,9 @@ export const AdminGameApi = () => {
     end: (gameId: number) => client.post(`${gameId}/end`, {}),
     results: (gameId: number, playerId: number) =>
       client.get(`${gameId}/results`, { params: { playerId } }),
+    openNextQuestion: (gameId: number) =>
+      client.post(`${gameId}/open-next-question`, {}),
+    getLeaderboard: (gameId: number) =>
+      client.get(`${gameId}/leaderboard`),
   };
 };

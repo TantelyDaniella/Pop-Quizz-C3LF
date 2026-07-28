@@ -13,4 +13,6 @@ export const AdminGameService = {
   start: (gameId: number) => api.start(gameId),
   end: (gameId: number) => api.end(gameId),
   results: (gameId: number, playerId: number) => api.results(gameId, playerId),
+  openNextQuestion: (gameId: number) => api.openNextQuestion(gameId),
+  getLeaderboard: (gameId: number) => api.getLeaderboard(gameId),
 };
