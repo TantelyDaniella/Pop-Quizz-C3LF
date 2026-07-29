@@ -24,7 +24,7 @@ export default function ContestCard({ contest, isJoined, hasJoinedAny, onJoin }:
     const { icon: StatusIcon, label, color } = statusConfig[contest.status] ?? statusConfig.waiting;
 
     return (
-        <div className="dark:bg-gray-600/30 bg-gray-400/10 light:border p-2 rounded-md flex flex-col gap-2">
+        <div className="surface-card light:border rounded-md flex flex-col gap-2">
             <p className="text-sm font-bold flex items-center gap-2">
                 <Gamepad2 className="w-4 h-4 shrink-0" />
                 <span>{contest.title}</span>

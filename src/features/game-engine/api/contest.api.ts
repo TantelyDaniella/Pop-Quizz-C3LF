@@ -16,5 +16,8 @@ export const ContestApi = () => {
 
     leaderboardMe: (gameId: number) =>
       client.get(`${gameId}/leaderboard/me`),
+
+    leaderboard: (gameId: number) =>
+      client.get(`${gameId}/leaderboard`),
   };
 };
