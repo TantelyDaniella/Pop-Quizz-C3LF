@@ -1,22 +1,25 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Hourglass } from "lucide-react";
 import { useGame } from "../hooks/useContest";
 import { useContestContext } from "@/features/game-engine/context/ContestContext";
 import WaitingRoom from "./WaitingRoom";
 import QuestionPanel from "./QuestionPanel";
 import AnswerReview from "./AnswerReview";
-import GameResults from "./GameResults";
 import IdleGamePage from "@/features/game-engine/components/IdleGamePage.tsx";
 
 export default function GameView() {
-  const { state, submitAnswer, submitAnswerApi, goToLobby } = useGame();
+  const navigate = useNavigate();
+  const { state, submitAnswer, submitAnswerApi } = useGame();
   const { joinedContest, setJoinedContest } = useContestContext();
   const title = joinedContest?.title ?? "Partie";
   const totalQuestions = joinedContest?.totalQuestions ?? 1;
 
-  const handleBackToLobby = () => {
-    setJoinedContest(null);
-    goToLobby();
-  };
+  useEffect(() => {
+    if (state.phase === "ended" && joinedContest) {
+      navigate(`/game-result/${joinedContest.id}`, { replace: true });
+    }
+  }, [state.phase, joinedContest, navigate]);
 
   const handleSubmitAnswer = (choiceId: number | null) => {
     if (choiceId === null) return;
@@ -55,10 +58,8 @@ export default function GameView() {
           correctAnswer={state.correctAnswer}
           progress={state.progress ?? { answeredCount: 0, totalParticipants: 0 }}
           selectedChoiceId={state.selectedChoiceId}
+          showLeaderboard={state.showLeaderboard}
         />
-      )}
-      {state.phase === "ended" && (
-        <GameResults score={state.score} gameId={joinedContest?.id ?? 0} onBackToLobby={handleBackToLobby} />
       )}
     </div>
   );

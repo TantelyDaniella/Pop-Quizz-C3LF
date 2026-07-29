@@ -30,7 +30,10 @@ export default function ValidationDialog({
 
     return (
         <Dialog open={open} onOpenChange={(o) => { if (!o) onClose?.(); }}>
-            <DialogContent showCloseButton={xCloseButton} className="flex flex-col items-center gap-4 py-8">
+            <DialogContent
+                showCloseButton={xCloseButton}
+                className="w-[calc(100%-2rem)] max-w-sm rounded-2xl flex flex-col items-center gap-4 py-8 px-6"
+            >
                 {isPending && (
                     <>
                         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -42,17 +45,17 @@ export default function ValidationDialog({
                         <CircleCheck className="w-8 h-8 text-green-500" />
                         <DialogTitle className="">{successMessage}</DialogTitle>
                         {!autoClose && (
-                            <button className="btn-primary" onClick={onClose}>Fermer</button>
+                            <button className="btn-primary w-full" onClick={onClose}>Fermer</button>
                         )}
                     </>
                 )}
                 {error && !isPending && (
                     <>
-                        <TriangleAlert className={"text-red-500"} />
+                        <TriangleAlert className="text-red-500" />
                         <DialogTitle className="">Une erreur est survenue</DialogTitle>
                         <p className="text-sm text-center text-(--secondary-text)">{error}</p>
-                        <DialogClose asChild >
-                            <button className="btn-primary">Fermer</button>
+                        <DialogClose asChild>
+                            <button className="btn-primary w-full">Fermer</button>
                         </DialogClose>
                     </>
                 )}

@@ -17,7 +17,7 @@ export default function UserPopover() {
             <div className="w-9 h-9 rounded-full bg-(--input-bg) border border-(--border-color) overflow-hidden">
               {player?.avatarUrl && <img src={player.avatarUrl} alt="avatar" className="w-full h-full" />}
             </div>
-            <span className="text-md font-bold">{player?.username ?? "player..."}</span>
+            <span className="text-md font-bold md:block hidden">{player?.username ?? "player..."}</span>
           </div>
         </PopoverTrigger>
         <PopoverContent className="w-56 p-3 flex flex-col gap-3" onOpenAutoFocus={(e) => e.preventDefault()}>

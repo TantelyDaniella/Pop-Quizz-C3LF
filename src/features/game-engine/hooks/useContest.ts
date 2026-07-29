@@ -8,7 +8,7 @@ const USE_MOCK = import.meta.env.VITE_USE_MOCK === "true";
 
 // ─── Contest listing ────────────────────────────────────────────────
 
-type Contest = { gameId: number; title: string; status: "waiting" | "running" | "finished"; totalQuestions?: number };
+export type Contest = { gameId: number; title: string; status: "waiting" | "running" | "finished"; totalQuestions?: number };
 
 export function useContests() {
   const socket = useSocket();
@@ -76,6 +76,7 @@ type GameAction =
   | { type: "SUBMIT_ANSWER"; selectedChoiceId: number }
   | { type: "SUBMIT_START" }
   | { type: "SUBMIT_DONE" }
+  | { type: "SHOW_LEADERBOARD" }
   | { type: "GO_TO_LOBBY" };
 
 const initial: GameState = {
@@ -90,6 +91,7 @@ const initial: GameState = {
   selectedChoiceId: null,
   submittedQuestionId: null,
   submitting: false,
+  showLeaderboard: false,
 };
 
 function reducer(state: GameState, action: GameAction): GameState {
@@ -134,6 +136,8 @@ function reducer(state: GameState, action: GameAction): GameState {
       return { ...state, submitting: false, submittedQuestionId: state.currentQuestion?.questionId ?? null };
     case "GAME_ENDED":
       return { ...state, phase: "ended", currentQuestion: null };
+    case "SHOW_LEADERBOARD":
+      return { ...state, showLeaderboard: true };
     case "GO_TO_LOBBY":
       return initial;
   }
@@ -159,16 +163,24 @@ export function useGame() {
       dispatch({ type: "GAME_ENDED" });
     };
 
+    const onShowLeaderboard = (data: { gameId: number }) => {
+      console.log("show-leaderboard payload:", data);
+      localStorage.setItem("leaderboardGameId", String(data.gameId));
+      dispatch({ type: "SHOW_LEADERBOARD" });
+    };
+
     socket.on("game:started", onStarted);
     socket.on("question:opened", onQuestionOpened);
     socket.on("question:closed", onQuestionClosed);
     socket.on("game:ended", onEnded);
+    socket.on("show-leaderboard", onShowLeaderboard);
 
     return () => {
       socket.off("game:started", onStarted);
       socket.off("question:opened", onQuestionOpened);
       socket.off("question:closed", onQuestionClosed);
       socket.off("game:ended", onEnded);
+      socket.off("show-leaderboard", onShowLeaderboard);
     };
   }, [socket]);
 

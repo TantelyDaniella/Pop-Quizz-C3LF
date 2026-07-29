@@ -23,7 +23,10 @@ export default function ConfirmDialog({ open, onOpenChange, icon: Icon, title, m
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent showCloseButton={false} className="flex flex-col items-center gap-4 py-8 max-w-sm">
+            <DialogContent
+                showCloseButton={false}
+                className="w-[calc(100%-2rem)] max-w-sm rounded-2xl flex flex-col items-center gap-4 py-8 px-6"
+            >
                 {pending ? (
                     <>
                         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -34,9 +37,13 @@ export default function ConfirmDialog({ open, onOpenChange, icon: Icon, title, m
                         <Icon className="w-8 h-8 text-primary" />
                         <DialogTitle>{title}</DialogTitle>
                         <p className="text-sm text-center text-(--secondary-text)">{message}</p>
-                        <div className="flex gap-3 w-full">
-                            <button className="btn-outline flex-1 py-2 text-sm" onClick={() => onOpenChange(false)}>Annuler</button>
-                            <button className="btn-primary flex-1" onClick={handleConfirm}>Confirmer</button>
+                        <div className="flex md:flex-row flex-col gap-3 w-full">
+                            <button className="btn-outline flex-1 py-2 text-sm" onClick={() => onOpenChange(false)}>
+                                Annuler
+                            </button>
+                            <button className="btn-primary flex-1" onClick={handleConfirm}>
+                                Confirmer
+                            </button>
                         </div>
                     </>
                 )}

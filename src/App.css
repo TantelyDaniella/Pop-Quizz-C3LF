@@ -23,7 +23,7 @@
   --primary-text-color: #333333;
   --secondary-text: #6b7280;
   --bg-main: #fdf7f7;
-  --surface: rgb(255 246 246 / 0.64);
+  --surface: rgb(255 246 246 / 0.8);
   --border-color: rgba(107, 114, 128, 0.2);
   --input-bg: rgba(229, 231, 235, 0.4);
   --background: var(--bg-main);
@@ -66,7 +66,7 @@
   --primary-text-color: #f3f4f6;
   --secondary-text: #9ca3af;
   --bg-main: #181923;
-  --surface: rgb(26 26 33);
+  --surface: rgb(25 25 38);
   --border-color: rgba(255, 255, 255, 0.1);
   --input-bg: #3b364a;
 }

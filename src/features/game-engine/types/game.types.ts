@@ -61,4 +61,5 @@ export type GameState = {
   selectedChoiceId: number | null;
   submittedQuestionId: number | null;
   submitting: boolean;
+  showLeaderboard: boolean;
 };

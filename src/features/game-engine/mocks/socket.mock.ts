@@ -21,6 +21,7 @@ function runGameLoop() {
       timers.push(setTimeout(() => emit("game:ended", {
         game: { gameId: 1, status: "finished", title: "Linux Battle #1" },
       }), 2000));
+      timers.push(setTimeout(() => emit("show-leaderboard", { gameId: 1 }), 4000));
       return;
     }
 

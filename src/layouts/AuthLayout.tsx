@@ -70,7 +70,7 @@ export default function AuthLayout() {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
-              className="absolute w-80 h-80 right-0"
+              className="hidden md:block absolute w-80 h-80 right-0"
           >
             {!loaded && (
                 <div className="absolute inset-0 flex flex-col gap-2 items-center justify-center">

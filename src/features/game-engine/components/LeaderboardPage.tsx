@@ -1,9 +1,11 @@
-import { useLocation } from "react-router-dom";
-import { Trophy, Medal, Target, XCircle, Zap, Clock, Crown } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Trophy, Target, Zap, Clock, Crown, Ban, RotateCcw } from "lucide-react";
 import { motion } from "framer-motion";
 import type { LeaderboardEntry } from "../types/game.types";
-import {useEffect, useState} from "react";
-import {ContestService} from "@/features/game-engine/services/contest.service.ts";
+import { useEffect, useState } from "react";
+import { useContestContext } from "@/features/game-engine/context/ContestContext";
+import { ContestService } from "@/features/game-engine/services/contest.service.ts";
+import LeaderboardEntryRow from "@/features/game-engine/components/LeaderboardEntryRow";
 
 const rankStyle: Record<number, { border: string; bg: string; badge: string; text: string }> = {
     1: { border: "border border-yellow-400/60", bg: "", badge: "bg-yellow-400/15 text-yellow-400 border-yellow-400/30", text: "text-yellow-400" },
@@ -21,6 +23,8 @@ const podiumBg: Record<number, string> = {
 
 export default function LeaderboardPage() {
     const location = useLocation();
+    const navigate = useNavigate();
+    const { setJoinedContest } = useContestContext();
     const gameId = (location.state as { gameId?: number } | null)?.gameId;
     const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
     const [, setLoading] = useState(true);
@@ -41,12 +45,7 @@ export default function LeaderboardPage() {
     );
 
     return (
-        <div className="relative w-full h-full flex flex-col p-8 overflow-y-auto">
-
-            {/* Background Decorations */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-150 h-75 rounded-full bg-yellow-500/5 blur-[100px] pointer-events-none z-0" />
-            <div className="absolute -bottom-25 -left-25 w-100 h-100 rounded-full bg-primary/5 blur-[100px] pointer-events-none z-0" />
-            <div className="absolute top-50 -right-37.5 w-87.5 h-87.5 rounded-full bg-purple-500/5 blur-[100px] pointer-events-none z-0" />
+        <div className="relative w-full h-full flex flex-col p-4 mb-4 md:p-8 overflow-y-auto">
 
             <div className="relative z-10 w-full flex flex-col gap-6">
 
@@ -70,7 +69,7 @@ export default function LeaderboardPage() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
-                        className="flex items-end justify-center gap-20"
+                        className="w-full flex items-end justify-center gap-4 md:gap-12"
                     >
                         {podiumOrder.map((idx, pos) => {
                             const entry = entries[idx];
@@ -85,9 +84,7 @@ export default function LeaderboardPage() {
                                         }`}
                                     />
                                     <p className="text-sm font-semibold truncate max-w-22.5 text-center">{entry.username}</p>
-                                    <span className={`text-xs font-black px-2 py-0.5 rounded-full border ${rankStyle[entry.rank]?.badge}`}>
-                                        #{entry.rank}
-                                    </span>
+
                                     <span className={`text-sm font-black ${rankStyle[entry.rank]?.text ?? "text-primary"}`}>
                                         {entry.score} pts
                                     </span>
@@ -106,43 +103,39 @@ export default function LeaderboardPage() {
                     transition={{ delay: 0.25 }}
                     className="rounded-xl overflow-hidden border border-(--border-color) bg-bg-main"
                 >
-                    {/* Thead */}
-                    <div className="grid grid-cols-[2rem_2.5rem_1fr_repeat(4,5rem)_4rem] gap-4 px-4 py-2 bg-(--surface)/80 border-b border-(--border-color)">
+                    {/* Entête visible seulement en desktop */}
+                    <div className="hidden md:grid grid-cols-[2rem_2.5rem_1fr_repeat(4,5rem)_4rem] gap-4 px-4 py-2 bg-(--surface)/80 border-b border-(--border-color)">
                         <span className="text-xs uppercase tracking-widest text-(--secondary-text)">#RANK</span>
                         <span />
                         <span className="text-xs uppercase tracking-widest text-(--secondary-text)">Joueur</span>
-                        <span className="text-xs uppercase tracking-widest text-center text-green-400"><Target className="w-4 h-4 text-green-400 mx-auto" /></span>
-                        <span className="text-xs uppercase tracking-widest text-secondary-text text-center"><XCircle className="w-4 h-4 text-red-400 mx-auto" /></span>
-                        <span className="text-xs uppercase tracking-widest text-center text-purple-400"><Zap className="w-4 h-4 text-purple-400 mx-auto" /></span>
-                        <span className="text-xs uppercase tracking-widest text-center text-blue-400"><Clock className="w-4 h-4 text-blue-400 mx-auto" /></span>
+                        <span className="text-xs uppercase tracking-widest text-center text-green-400"><Target className="w-4 h-4 mx-auto" /></span>
+                        <span className="text-xs uppercase tracking-widest text-center text-red-400"><Ban className="w-4 h-4 mx-auto" /></span>
+                        <span className="text-xs uppercase tracking-widest text-center text-purple-400"><Zap className="w-4 h-4 mx-auto" /></span>
+                        <span className="text-xs uppercase tracking-widest text-center text-blue-400"><Clock className="w-4 h-4 mx-auto" /></span>
                         <span className="text-xs uppercase tracking-widest text-(--secondary-text) text-right">Pts</span>
                     </div>
 
                     {/* Rows */}
                     {entries.map((entry, i) => (
-                        <motion.div
-                            key={entry.playerId}
-                            initial={{ opacity: 0, x: -10 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: 0.1 + i * 0.04 }}
-                            className={`grid grid-cols-[2rem_2.5rem_1fr_repeat(4,5rem)_4rem] gap-4 px-4 py-3 items-center
-                            border-b border-(--border-color) last:border-0 transition-colors hover:bg-(--surface)/60
-                                ${rankStyle[entry.rank]?.bg ?? ""}`}
-                        >
-                            <span className={`font-black text-sm ${rankStyle[entry.rank]?.text ?? "text-(--secondary-text)"}`}>
-                                {entry.rank <= 3 ? <Medal className="w-4 h-4 inline" /> : `#${entry.rank}`}
-                            </span>
-                            <img src={entry.avatarUrl} alt={entry.username}
-                                 className="w-8 h-8 rounded-full border border-(--border-color) object-cover" />
-                            <span className="font-semibold text-sm truncate">{entry.username}</span>
-                            <span className="text-sm text-center  font-medium">{entry.correctAnswers}</span>
-                            <span className="text-sm text-center  font-medium">{entry.wrongAnswers}</span>
-                            <span className="text-sm text-center  font-medium">{entry.firstBloodCount}</span>
-                            <span className="text-sm text-center  font-medium">{entry.avgResponseTime.toFixed(1)}s</span>
-                            <span className="text-sm text-right font-bold text-primary">{entry.score}</span>
-                        </motion.div>
+                        <LeaderboardEntryRow key={entry.playerId} entry={entry} index={i} />
                     ))}
                 </motion.div>
+
+                <motion.button
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.4 }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => {
+                        setJoinedContest(null);
+                        navigate("/");
+                    }}
+                    className="self-center flex items-center justify-center gap-2 py-3 px-8 rounded-xl cursor-pointer text-base border border-(--border-color) text-(--secondary-text) hover:bg-(--input-bg) transition-colors"
+                >
+                    <RotateCcw className="w-5 h-5" />
+                    Retour au lobby
+                </motion.button>
             </div>
         </div>
     );

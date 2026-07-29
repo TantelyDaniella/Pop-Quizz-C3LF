@@ -1,12 +1,14 @@
 import { Inbox } from "lucide-react";
-import { useContests, useJoinContest } from "@/features/game-engine/hooks/useContest";
+import { useJoinContest } from "@/features/game-engine/hooks/useContest";
 import { useContestContext } from "@/features/game-engine/context/ContestContext";
 import ContestCard from "./ContestCard";
 import EmptyState from "@/components/common/EmptyState";
 import { getPlayerIdFromToken } from "@/app/utils/app.utils";
+import type { Contest } from "@/features/game-engine/hooks/useContest";
 
-export default function ContestSidebar() {
-  const { contests } = useContests();
+type Props = { contests: Contest[] };
+
+export default function ContestSidebar({ contests }: Props) {
   const { join } = useJoinContest();
   const { joinedContest, setJoinedContest } = useContestContext();
   const playerId = getPlayerIdFromToken();

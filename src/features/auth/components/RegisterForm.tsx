@@ -1,4 +1,5 @@
 import {useEffect, useState} from "react";
+import { useNavigate } from "react-router-dom";
 import { User, Mail, Lock } from "lucide-react";
 import FormInput from "@/components/common/FormInput";
 import AvatarPicker from "@/components/common/AvatarPicker";
@@ -8,6 +9,7 @@ import ValidationDialog from "@/components/common/ValidationDialog.tsx";
 import { useRegister } from "../hooks/useAuth.ts";
 
 export default function RegisterForm() {
+  const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,6 +29,13 @@ export default function RegisterForm() {
   useEffect(() => {
     if (isPending || !!error) setShowDialog(true);
   }, [isPending, error]);
+
+  useEffect(() => {
+    if (isSuccess) {
+      const timeout = setTimeout(() => navigate("/login"), 2000);
+      return () => clearTimeout(timeout);
+    }
+  }, [isSuccess, navigate]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
