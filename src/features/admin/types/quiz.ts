@@ -25,3 +25,16 @@ export type UpdateQuizPayload = {
   title: string;
   totalQuestions: number;
 };
+
+export type LeaderboardEntry = {
+  gameId: number;
+  playerId: number;
+  username: string;
+  avatarUrl: string;
+  score: number;
+  correctAnswers: number;
+  wrongAnswers: number;
+  firstBloodCount: number;
+  avgResponseTime: number;
+  rank: number;
+};
