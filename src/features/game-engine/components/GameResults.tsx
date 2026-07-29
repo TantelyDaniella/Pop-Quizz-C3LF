@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Trophy, RotateCcw, Target, XCircle, Zap, Clock, Medal, Crown } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Trophy, RotateCcw, Target, XCircle, Zap, Clock, Medal, Crown, List } from "lucide-react";
 import { motion } from "framer-motion";
 import { ContestService } from "../services/contest.service";
 import type { LeaderboardEntry } from "../types/game.types";
@@ -26,6 +27,7 @@ function StatItem({ icon: Icon, value, label, color }: StatItemProps) {
 }
 
 export default function GameResults({ score, gameId, onBackToLobby }: Props) {
+    const navigate = useNavigate();
     const [leaderboard, setLeaderboard] = useState<LeaderboardEntry | null>(null);
 
     useEffect(() => {
@@ -96,18 +98,31 @@ export default function GameResults({ score, gameId, onBackToLobby }: Props) {
                     </motion.div>
                 )}
 
-                <motion.button
+                <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.4 }}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.97 }}
-                    onClick={onBackToLobby}
-                    className="btn-primary w-full flex items-center justify-center gap-2 py-4 rounded-xl cursor-pointer text-base"
+                    className="flex gap-3"
                 >
-                    <RotateCcw className="w-5 h-5" />
-                    Retour au lobby
-                </motion.button>
+                    <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={onBackToLobby}
+                        className="flex-1 flex items-center justify-center gap-2 py-4 rounded-xl cursor-pointer text-base border border-(--border-color) text-(--secondary-text) hover:bg-(--input-bg) transition-colors"
+                    >
+                        <RotateCcw className="w-5 h-5" />
+                        Retour au lobby
+                    </motion.button>
+                    <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => navigate("/leaderboard", { state: { gameId } })}
+                        className="btn-primary flex-1 flex items-center justify-center gap-2 py-4 rounded-xl cursor-pointer text-base"
+                    >
+                        <List className="w-5 h-5" />
+                        Voir le classement
+                    </motion.button>
+                </motion.div>
             </div>
         </div>
     );
