@@ -1,5 +1,5 @@
 
-import { AdminGameService } from "../services/admin.game.service";
+import { GameService } from "../services/game.service";
 
 import {
   useMutation,
@@ -20,7 +20,7 @@ export function useOpenNextQuestion() {
         gameId
       );
 
-      return AdminGameService.openNextQuestion(gameId);
+      return GameService.openNextQuestion(gameId);
     },
 
     onSuccess: (response) => {
