@@ -10,8 +10,8 @@ import LiveQuestion, {
   type Answer,
 } from "../components/LiveQuestion";
 
-import { SocketContext } from "../../context/SocketContext";
-import { useOpenNextQuestion } from "../../hooks/admin/useGame";
+import { SocketContext } from "../../../app/context/SocketContext";
+import { useOpenNextQuestion } from "../hooks/useGame";
 
 interface QuestionData {
   contestQuestionId: number;
