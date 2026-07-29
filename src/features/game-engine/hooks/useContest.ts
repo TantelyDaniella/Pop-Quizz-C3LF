@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useReducer, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { ContestService } from "../services/contest.service";
-import { ContestApi } from "../api/contest.api";
 import useSocket from "@/features/game-engine/hooks/useSocket";
 import type { GameState, Question } from "../types/game.types";
 
@@ -148,15 +147,6 @@ export function useGame() {
     const onStarted = (data?: unknown) => {
       console.log("game:started payload:", data);
       dispatch({ type: "GAME_STARTED" });
-      if (!USE_MOCK) {
-        const payload = data as Record<string, unknown>;
-        const game = payload?.game as Record<string, unknown> | undefined;
-        const gameId = (game?.gameId ?? game?.id ?? payload?.gameId) as number | undefined;
-        if (gameId) {
-          console.log("Opening first question for game:", gameId);
-          ContestApi().openNextQuestion(gameId).catch((e) => console.error("open first question error:", e));
-        }
-      }
     };
     const onQuestionOpened = (data: { question: Question }) => {
       console.log("question:opened payload:", data.question);

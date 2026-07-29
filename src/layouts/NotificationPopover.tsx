@@ -21,7 +21,7 @@ export default function NotificationPopover() {
           {unreadCount > 0 ? (
             <>
               <BellDot className="w-5 h-5" />
-              <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-red-500" />
+                {/*<span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-red-500" />*/}
             </>
           ) : (
             <Bell className="w-5 h-5" />
