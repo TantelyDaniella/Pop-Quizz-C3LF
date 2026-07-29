@@ -13,14 +13,37 @@ import LiveQuestion, {
 import { SocketContext } from "../../context/SocketContext";
 import { useOpenNextQuestion } from "../../hooks/admin/useGame";
 
-interface QuestionStartedPayload {
+interface QuestionData {
+  contestQuestionId: number;
+  gameId: number;
   questionId: number;
-  questionNumber: number;
-  totalQuestions: number;
-  question: string;
-  answers: Answer[];
+  category: string;
+  choices: Answer[]; // ⚠️ à confirmer une fois la structure de choices connue
+  closedAt: string | null;
+  correctAnswer: string;
   duration: number;
-  startedAt: number;
+  explanation: string;
+  openedAt: string;
+  orderIndex: number;
+  points: number;
+  roundNumber: number;
+  statement: string;
+  status: string;
+  type: string;
+}
+
+interface QuestionOpenedPayload {
+  question: QuestionData;
+}
+
+interface QuestionClosedPayload {
+  contestQuestionId: number;
+  correctAnswer: string | unknown[] | object;
+  // ⚠️ Le backend n'envoie pas toujours ce champ actuellement
+  progress?: {
+    answeredCount: number;
+    totalParticipants: number;
+  };
 }
 
 interface AnswerStatsPayload {
@@ -33,7 +56,7 @@ interface AnswerStatsPayload {
 export default function QuizQuestionPage() {
   const { gameId, roundNumber } = useParams();
   const openingQuestionRef = useRef(false);
-
+  const [questionReceivedAt, setQuestionReceivedAt] = useState<number>(0);
   const socket = useContext(SocketContext);
 
   const {
@@ -42,7 +65,7 @@ export default function QuizQuestionPage() {
   } = useOpenNextQuestion();
 
   const [question, setQuestion] =
-    useState<QuestionStartedPayload | null>(null);
+    useState<QuestionData | null>(null);
 
   const [stats, setStats] =
     useState<AnswerStatsPayload>({
@@ -52,11 +75,16 @@ export default function QuizQuestionPage() {
       incorrectPercentage: 0,
     });
 
+  const [isSocketReady, setIsSocketReady] = useState(false);
+
   const numericGameId = Number(gameId);
 
   /*
    * =====================================================
-   * Rejoindre le quiz
+   * Rejoindre la room de la partie (game:{gameId})
+   *
+   * ⚠️ Le backend attend l'ID directement, pas un objet
+   * (src/server.js:35 → socket.on("join-game", (gameId) => ...))
    * =====================================================
    */
 
@@ -70,29 +98,30 @@ export default function QuizQuestionPage() {
       return;
     }
 
-    const joinQuiz = () => {
-      console.log("👤 Admin rejoint le quiz :", numericGameId);
+    const joinGame = () => {
+      console.log("👤 Admin rejoint la game :", numericGameId);
 
-      socket.emit("join_quiz", {
-        gameId: numericGameId,
-        role: "admin",
-      });
+      socket.emit("join-game", numericGameId);
+
+      setIsSocketReady(true);
     };
 
     if (socket.connected) {
-      joinQuiz();
+      joinGame();
+    } else {
+      setIsSocketReady(false);
     }
 
-    socket.on("connect", joinQuiz);
+    socket.on("connect", joinGame);
 
     return () => {
-      socket.off("connect", joinQuiz);
+      socket.off("connect", joinGame);
     };
   }, [socket, gameId, numericGameId]);
 
   /*
    * =====================================================
-   * Question démarrée + Statistiques
+   * Question ouverte : "question:opened"
    * =====================================================
    */
 
@@ -101,15 +130,13 @@ export default function QuizQuestionPage() {
       return;
     }
 
-    console.log("🔌 Socket connecté ?", socket.connected);
-    console.log("🔌 Socket ID :", socket.id);
-
-    const handleQuestionStarted = (
-      data: QuestionStartedPayload
+    const handleQuestionOpened = (
+      data: QuestionOpenedPayload
     ) => {
-      console.log("🔥 QUESTION REÇUE :", data);
+      console.log("🔥 QUESTION REÇUE (question:opened) :", data);
 
-      setQuestion(data);
+      setQuestion(data.question);
+      setQuestionReceivedAt(Date.now());
       openingQuestionRef.current = false;
 
       setStats({
@@ -120,25 +147,57 @@ export default function QuizQuestionPage() {
       });
     };
 
-    const handleAnswerStatsUpdated = (
-      data: AnswerStatsPayload
-    ) => {
-      console.log("📊 STATISTIQUES :", data);
-      setStats(data);
-    };
-
-    socket.on("question_started", handleQuestionStarted);
-    socket.on("answer_stats_updated", handleAnswerStatsUpdated);
+    socket.on("question:opened", handleQuestionOpened);
 
     return () => {
-      socket.off("question_started", handleQuestionStarted);
-      socket.off("answer_stats_updated", handleAnswerStatsUpdated);
+      socket.off("question:opened", handleQuestionOpened);
     };
   }, [socket]);
 
   /*
    * =====================================================
-   * DEBUG TEMPORAIRE : écouter tous les événements reçus
+   * Fermeture de question : "question:closed"
+   *
+   * ⚠️ Le backend n'envoie pas toujours "progress" pour le
+   * moment (observé : { contestQuestionId, correctAnswer }
+   * seulement) — on sécurise l'accès.
+   * =====================================================
+   */
+
+  useEffect(() => {
+    if (!socket) {
+      return;
+    }
+
+    const handleQuestionClosed = (
+      data: QuestionClosedPayload
+    ) => {
+      console.log("📊 QUESTION FERMÉE (question:closed) :", data);
+
+      if (!data.progress) {
+        console.warn(
+          "⚠️ question:closed reçu sans champ 'progress' — stats non mises à jour"
+        );
+        return;
+      }
+
+      setStats((prev) => ({
+        ...prev,
+        answeredPlayers: data.progress!.answeredCount,
+        totalPlayers: data.progress!.totalParticipants,
+      }));
+    };
+
+    socket.on("question:closed", handleQuestionClosed);
+
+    return () => {
+      socket.off("question:closed", handleQuestionClosed);
+    };
+  }, [socket]);
+
+  /*
+   * =====================================================
+   * DEBUG TEMPORAIRE (à retirer une fois validé)
    * =====================================================
    */
 
@@ -161,13 +220,11 @@ export default function QuizQuestionPage() {
   /*
    * =====================================================
    * Ouvrir une question
-   *
-   * Cela sert aussi pour la question 1.
    * =====================================================
    */
 
   const handleOpenQuestion = () => {
-    if (!gameId) {
+    if (!gameId || !isSocketReady) {
       return;
     }
 
@@ -177,7 +234,6 @@ export default function QuizQuestionPage() {
       return;
     }
 
-    // Empêcher plusieurs clics simultanés
     if (openingQuestionRef.current) {
       console.log("⏳ Ouverture déjà en cours...");
       return;
@@ -196,7 +252,6 @@ export default function QuizQuestionPage() {
       },
 
       onError: () => {
-        // Si la requête échoue, on autorise un nouvel essai.
         openingQuestionRef.current = false;
       },
     });
@@ -239,14 +294,16 @@ export default function QuizQuestionPage() {
             <button
               type="button"
               onClick={handleOpenQuestion}
-              disabled={isOpeningQuestion}
+              disabled={isOpeningQuestion || !isSocketReady}
               className="mt-6 inline-flex items-center gap-3 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {isOpeningQuestion && (
+              {(isOpeningQuestion || !isSocketReady) && (
                 <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
               )}
 
-              {isOpeningQuestion
+              {!isSocketReady
+                ? "Connexion..."
+                : isOpeningQuestion
                 ? "Ouverture..."
                 : "Ouvrir la question 1"}
             </button>
@@ -257,12 +314,12 @@ export default function QuizQuestionPage() {
         {/* Question active */}
         {question && (
           <LiveQuestion
-            questionNumber={question.questionNumber}
-            totalQuestions={question.totalQuestions}
-            question={question.question}
-            answers={question.answers}
+            questionNumber={question.orderIndex}
+            totalQuestions={10} // ⚠️ absent du payload, à récupérer autrement — voir note
+            question={question.statement}
+            answers={question.choices}
             duration={question.duration}
-            startedAt={question.startedAt}
+            startedAt={questionReceivedAt}
             answeredPlayers={stats.answeredPlayers}
             totalPlayers={stats.totalPlayers}
             correctPercentage={stats.correctPercentage}

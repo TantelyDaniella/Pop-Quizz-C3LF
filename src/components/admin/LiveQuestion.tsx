@@ -10,7 +10,7 @@ import {
 export interface Answer {
   id: number;
   label: string;
-  text: string;
+  content: string;
 }
 
 interface LiveQuestionProps {
@@ -45,7 +45,7 @@ export default function LiveQuestion({
   onNext,
 }: LiveQuestionProps) {
   const [timeLeft, setTimeLeft] = useState(duration);
-
+  
   useEffect(() => {
     const updateTimer = () => {
       const elapsed = Date.now() - startedAt;
@@ -254,7 +254,7 @@ export default function LiveQuestion({
                 </span>
 
                 <span className="text-lg font-medium text-slate-800">
-                  {answer.text}
+                  {answer.content}
                 </span>
 
               </div>
