@@ -1,33 +1,23 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowRight,
   CheckCircle2,
   Clock3,
-  Trophy,
   Users,
   XCircle,
 } from "lucide-react";
 
 export interface Answer {
-  choiceId: number;
+  id: number;
   label: string;
-  content: string;
-  orderIndex: number;
+  content : string;
 }
 
 interface LiveQuestionProps {
   questionNumber: number;
   totalQuestions: number;
-
-  // Total de questions toutes catégories confondues
-  totalQuestionsGlobal: number;
-
   question: string;
   answers: Answer[];
-
-  // Réponse correcte (correspond au champ `content` d'une réponse),
-  // utilisée pour colorer la bonne réponse en vert quand le temps est écoulé
-  correctAnswer: string;
 
   duration: number;
   startedAt: number;
@@ -39,16 +29,13 @@ interface LiveQuestionProps {
   incorrectPercentage: number;
 
   onNext: () => void;
-  onEndQuiz: () => void;
 }
 
 export default function LiveQuestion({
   questionNumber,
   totalQuestions,
-  totalQuestionsGlobal,
   question,
   answers,
-  correctAnswer,
   duration,
   startedAt,
   answeredPlayers,
@@ -56,21 +43,9 @@ export default function LiveQuestion({
   correctPercentage,
   incorrectPercentage,
   onNext,
-  onEndQuiz,
 }: LiveQuestionProps) {
   const [timeLeft, setTimeLeft] = useState(duration);
-
-  // --- Compteur global continu (ne dépend pas du reset par catégorie) ---
-  const globalIndexRef = useRef(0);
-  const lastQuestionRef = useRef<string | null>(null);
-
-  if (lastQuestionRef.current !== question) {
-    globalIndexRef.current += 1;
-    lastQuestionRef.current = question;
-  }
-
-  const globalQuestionNumber = globalIndexRef.current;
-
+  
   useEffect(() => {
     const updateTimer = () => {
       const elapsed = Date.now() - startedAt;
@@ -102,26 +77,14 @@ export default function LiveQuestion({
         )
       : 0;
 
-  // Progression basée sur le compteur GLOBAL, plus sur questionNumber/totalQuestions
   const questionProgress =
-    totalQuestionsGlobal > 0
+    totalQuestions > 0
       ? Math.round(
-          (globalQuestionNumber / totalQuestionsGlobal) * 100
+          (questionNumber / totalQuestions) * 100
         )
       : 0;
 
   const isTimeRunningOut = timeLeft <= 5;
-
-  // Temps écoulé -> on révèle la bonne réponse
-  const isTimeUp = timeLeft <= 0;
-
-  const isCorrectAnswer = (answer: Answer) =>
-    answer.content === correctAnswer;
-
-  // NOUVEAU : dernière question atteinte -> le bouton devient "Voir le résultat"
-  const isLastQuestion =
-    totalQuestionsGlobal > 0 &&
-    globalQuestionNumber >= totalQuestionsGlobal;
 
   return (
     <div className="space-y-6">
@@ -131,7 +94,7 @@ export default function LiveQuestion({
 
         <div className="mb-3 flex items-center justify-between">
           <span className="text-sm font-medium text-slate-700">
-            Question {globalQuestionNumber} / {totalQuestionsGlobal}
+            Question {questionNumber} / {totalQuestions}
           </span>
 
           <span className="text-sm text-slate-500">
@@ -254,7 +217,7 @@ export default function LiveQuestion({
         <div className="mb-6 flex items-center justify-between">
 
           <span className="rounded-full bg-blue-50 px-4 py-2 text-sm font-medium text-blue-600">
-            Question {globalQuestionNumber}
+            Question {questionNumber}
           </span>
 
           {/* Timer */}
@@ -279,49 +242,24 @@ export default function LiveQuestion({
         {/* Réponses */}
         <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-2">
 
-          {answers.map((answer) => {
-            const isCorrect = isTimeUp && isCorrectAnswer(answer);
+          {answers.map((answer) => (
+            <div
+              key={answer.id}
+              className="rounded-xl border border-slate-200 bg-slate-50 p-5 transition hover:border-blue-300 hover:bg-blue-50"
+            >
+              <div className="flex items-center gap-4">
 
-            return (
-              <div
-                key={answer.choiceId}
-                className={`rounded-xl border p-5 transition ${
-                  isCorrect
-                    ? "border-green-400 bg-green-100"
-                    : "border-slate-200 bg-slate-50 hover:border-blue-300 hover:bg-blue-50"
-                }`}
-              >
-                <div className="flex items-center gap-4">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white font-bold text-slate-700 shadow-sm">
+                  {answer.label}
+                </span>
 
-                  <span
-                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg font-bold shadow-sm ${
-                      isCorrect
-                        ? "bg-green-500 text-white"
-                        : "bg-white text-slate-700"
-                    }`}
-                  >
-                    {answer.label}
-                  </span>
+                <span className="text-lg font-medium text-slate-800">
+                  {answer.content}
+                </span>
 
-                  <span
-                    className={`text-lg font-medium ${
-                      isCorrect ? "text-green-800" : "text-slate-800"
-                    }`}
-                  >
-                    {answer.content}
-                  </span>
-
-                  {isCorrect && (
-                    <CheckCircle2
-                      size={22}
-                      className="ml-auto shrink-0 text-green-600"
-                    />
-                  )}
-
-                </div>
               </div>
-            );
-          })}
+            </div>
+          ))}
 
         </div>
 
@@ -351,28 +289,18 @@ export default function LiveQuestion({
 
         </div>
 
-        {/* Bouton suivant / voir le résultat */}
+        {/* Bouton suivant */}
         <div className="mt-8 flex justify-end">
 
-          {isLastQuestion ? (
-            <button
-              type="button"
-              onClick={onEndQuiz}
-              className="flex items-center gap-2 rounded-xl bg-green-600 px-6 py-3 font-semibold text-white transition hover:bg-green-700"
-            >
-              Voir le résultat
-              <Trophy size={18} />
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={onNext}
-              className="flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
-            >
-              Question suivante
-              <ArrowRight size={18} />
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={onNext}
+            className="flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
+          >
+            Question suivante
+
+            <ArrowRight size={18} />
+          </button>
 
         </div>
       </div>

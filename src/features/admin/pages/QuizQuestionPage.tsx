@@ -4,21 +4,23 @@ import {
   useState,
   useRef,
 } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 
 import LiveQuestion, {
   type Answer,
 } from "../components/LiveQuestion";
+import AdminGameResults from "../components/AdminGameResult";
 
 import { SocketContext } from "../../../app/context/SocketContext";
 import { useOpenNextQuestion } from "../hooks/useGame";
+import { useEndQuiz } from "../hooks/useQuiz";
 
 interface QuestionData {
   contestQuestionId: number;
   gameId: number;
   questionId: number;
   category: string;
-  choices: Answer[]; // ⚠️ à confirmer une fois la structure de choices connue
+  choices: Answer[];
   closedAt: string | null;
   correctAnswer: string;
   duration: number;
@@ -34,12 +36,12 @@ interface QuestionData {
 
 interface QuestionOpenedPayload {
   question: QuestionData;
+  totalQuestions?: number;
 }
 
 interface QuestionClosedPayload {
   contestQuestionId: number;
   correctAnswer: string | unknown[] | object;
-  // ⚠️ Le backend n'envoie pas toujours ce champ actuellement
   progress?: {
     answeredCount: number;
     totalParticipants: number;
@@ -53,8 +55,20 @@ interface AnswerStatsPayload {
   incorrectPercentage: number;
 }
 
+// ⚠️ Forme supposée de l'erreur renvoyée par useOpenNextQuestion.
+// À ajuster selon la vraie structure exposée dans onError.
+interface OpenQuestionError {
+  response?: {
+    status?: number;
+    data?: {
+      message?: string;
+    };
+  };
+}
+
 export default function QuizQuestionPage() {
   const { gameId, roundNumber } = useParams();
+  const navigate = useNavigate();
   const openingQuestionRef = useRef(false);
   const [questionReceivedAt, setQuestionReceivedAt] = useState<number>(0);
   const socket = useContext(SocketContext);
@@ -76,15 +90,17 @@ export default function QuizQuestionPage() {
     });
 
   const [isSocketReady, setIsSocketReady] = useState(false);
+  const [totalQuestionsGlobal, setTotalQuestionsGlobal] = useState(4);
+
+  // Passe à true quand le backend signale qu'il n'y a plus de question
+  const [isQuizFinished, setIsQuizFinished] = useState(false);
 
   const numericGameId = Number(gameId);
+
 
   /*
    * =====================================================
    * Rejoindre la room de la partie (game:{gameId})
-   *
-   * ⚠️ Le backend attend l'ID directement, pas un objet
-   * (src/server.js:35 → socket.on("join-game", (gameId) => ...))
    * =====================================================
    */
 
@@ -139,6 +155,10 @@ export default function QuizQuestionPage() {
       setQuestionReceivedAt(Date.now());
       openingQuestionRef.current = false;
 
+      if (typeof data.totalQuestions === "number") {
+        setTotalQuestionsGlobal(data.totalQuestions);
+      }
+
       setStats({
         answeredPlayers: 0,
         totalPlayers: 0,
@@ -157,10 +177,6 @@ export default function QuizQuestionPage() {
   /*
    * =====================================================
    * Fermeture de question : "question:closed"
-   *
-   * ⚠️ Le backend n'envoie pas toujours "progress" pour le
-   * moment (observé : { contestQuestionId, correctAnswer }
-   * seulement) — on sécurise l'accès.
    * =====================================================
    */
 
@@ -251,11 +267,81 @@ export default function QuizQuestionPage() {
         console.log("✅ Requête open-next-question réussie");
       },
 
-      onError: () => {
+      onError: (error: OpenQuestionError) => {
         openingQuestionRef.current = false;
+
+        const status = error?.response?.status;
+        const message = error?.response?.data?.message;
+
+        // Plus de question en attente => le quiz est terminé
+        if (
+          status === 404 &&
+          message === "Aucune question en attente."
+        ) {
+          console.log("🏁 Plus de question en attente, quiz terminé.");
+          setQuestion(null);
+          setIsQuizFinished(true);
+          return;
+        }
+
+        console.error(
+          "❌ Erreur open-next-question inattendue",
+          error
+        );
       },
     });
   };
+
+  /*
+   * =====================================================
+   * Compteur global continu de questions
+   * =====================================================
+   */
+
+  const globalQuestionNumberRef = useRef(0);
+  const lastQuestionIdRef = useRef<number | null>(null);
+
+  if (
+    question &&
+    lastQuestionIdRef.current !== question.questionId
+  ) {
+    globalQuestionNumberRef.current += 1;
+    lastQuestionIdRef.current = question.questionId;
+  }
+
+  const globalQuestionNumber = globalQuestionNumberRef.current;
+
+  const handleBackToLobby = () => {
+    navigate("/lobby"); // ⚠️ route à confirmer
+  };
+
+
+const { endQuiz, isPending: isEndingQuiz } = useEndQuiz();
+
+// ...
+
+const handleEndQuiz = () => {
+  if (!gameId) {
+    return;
+  }
+
+  const numericGameId = Number(gameId);
+
+  if (Number.isNaN(numericGameId)) {
+    return;
+  }
+
+  endQuiz(numericGameId, {
+    onSuccess: () => {
+      console.log("✅ Quiz terminé");
+      setQuestion(null);
+      setIsQuizFinished(true);
+    },
+    onError: (error) => {
+      console.error("❌ Erreur end-quiz", error);
+    },
+  });
+};
 
   /*
    * =====================================================
@@ -278,8 +364,16 @@ export default function QuizQuestionPage() {
           </p>
         </div>
 
-        {/* Aucune question ouverte */}
-        {!question && (
+        {/* Résultats finaux */}
+        {isQuizFinished && (
+          <AdminGameResults
+            gameId={numericGameId}
+            onBackToLobby={handleBackToLobby}
+          />
+        )}
+
+        {/* Aucune question ouverte (et quiz pas encore terminé) */}
+        {!question && !isQuizFinished && (
           <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center shadow-sm">
 
             <h2 className="text-xl font-semibold">
@@ -312,12 +406,14 @@ export default function QuizQuestionPage() {
         )}
 
         {/* Question active */}
-        {question && (
+        {question && !isQuizFinished && (
           <LiveQuestion
-            questionNumber={question.orderIndex}
-            totalQuestions={10} // ⚠️ absent du payload, à récupérer autrement — voir note
+            questionNumber={globalQuestionNumber}
+            totalQuestions={totalQuestionsGlobal}
+            totalQuestionsGlobal={totalQuestionsGlobal}
             question={question.statement}
             answers={question.choices}
+            correctAnswer={question.correctAnswer}
             duration={question.duration}
             startedAt={questionReceivedAt}
             answeredPlayers={stats.answeredPlayers}
@@ -325,6 +421,7 @@ export default function QuizQuestionPage() {
             correctPercentage={stats.correctPercentage}
             incorrectPercentage={stats.incorrectPercentage}
             onNext={handleOpenQuestion}
+            onEndQuiz={handleEndQuiz}
           />
         )}
 

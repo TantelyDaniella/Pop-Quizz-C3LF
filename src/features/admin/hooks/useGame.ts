@@ -53,3 +53,17 @@ export function useOpenNextQuestion() {
     error,
   };
 }
+
+
+/**
+ * Classement complet d'une partie (tous les joueurs).
+ */
+export function useGameLeaderboard(gameId: number, enabled = true) {
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ["game-leaderboard", gameId],
+    queryFn: () => GameService.getLeaderboard(gameId),
+    enabled: !!gameId && enabled,
+  });
+
+  return { leaderboard: data?.data, isLoading, error, refetch };
+}

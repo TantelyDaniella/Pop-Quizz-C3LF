@@ -96,5 +96,35 @@ export function useQuizResults(gameId: number, playerId: number) {
     enabled: !!gameId && !!playerId,
   });
 
-  return { results: data?.data, isLoading, error, refetch };
+  return { results: data, isLoading, error, refetch };
+}
+
+/**
+ * Classement complet d'une partie (tous les joueurs).
+ */
+export function useGameLeaderboard(gameId: number, enabled = true) {
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ["game-leaderboard", gameId],
+    queryFn: () => AdminGameService.getLeaderboard(gameId),
+    enabled: !!gameId && enabled,
+  });
+
+  return { leaderboard: data, isLoading, error, refetch };
+}
+
+/**
+ * Résultats détaillés d'un joueur précis pour une partie.
+ */
+export function useGameResults(
+  gameId: number,
+  playerId: number,
+  enabled = true
+) {
+  const { data, isLoading, error, refetch } = useQuery({
+    queryKey: ["game-results", gameId, playerId],
+    queryFn: () => AdminGameService.results(gameId, playerId),
+    enabled: !!gameId && !!playerId && enabled,
+  });
+
+  return { results: data, isLoading, error, refetch };
 }
