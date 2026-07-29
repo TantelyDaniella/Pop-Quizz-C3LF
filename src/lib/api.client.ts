@@ -1,8 +1,6 @@
 import axios from "axios";
-import APP_CONFIG from "../../app.config";
 
-const { hostname, port } = APP_CONFIG.API_CONFIG;
-const BASE_URL = `http://${hostname}:${port}/api`;
+const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000/api";
 
 function createClient(endpoint: string) {
   const client = axios.create({

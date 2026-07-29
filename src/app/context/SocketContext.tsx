@@ -1,10 +1,8 @@
 import { createContext, type ReactNode, useEffect, useState } from "react";
 import { io, type Socket } from "socket.io-client";
 import { mockSocket } from "@/features/game-engine/mocks/socket.mock";
-import APP_CONFIG from "../../../app.config";
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL ||
-    `http://${APP_CONFIG.API_CONFIG.hostname}:${APP_CONFIG.API_CONFIG.port}`;
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL ?? "http://localhost:3000";
 const USE_MOCK = import.meta.env.VITE_USE_MOCK === "true";
 
 export const SocketContext = createContext<Socket>({} as Socket);
