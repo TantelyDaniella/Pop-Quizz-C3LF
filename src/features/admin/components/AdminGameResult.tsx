@@ -16,8 +16,15 @@ export default function AdminGameResults({ gameId, onBackToLobby }: Props) {
 
   useEffect(() => {
     AdminGameService.getLeaderboard(gameId)
-      .then((res) => setEntries(Array.isArray(res) ? res : (res as { data?: LeaderboardEntry[] })?.data ?? []))
-      .catch(console.error)
+      .then((res) => {
+        console.log("[AdminGameResult] Raw response:", res);
+        const leaderboard = (res as { data?: { leaderboard?: LeaderboardEntry[] } })?.data?.leaderboard ?? [];
+        console.log("[AdminGameResult] Extracted leaderboard:", leaderboard);
+        setEntries(leaderboard);
+      })
+      .catch((err) => {
+        console.error("[AdminGameResult] Error fetching leaderboard:", err);
+      })
       .finally(() => setLoading(false));
   }, [gameId]);
 
