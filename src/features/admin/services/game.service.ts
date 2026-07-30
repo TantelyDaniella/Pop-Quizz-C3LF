@@ -21,4 +21,7 @@ export const GameService = {
 
   getLeaderboard: (gameId: number) =>
     api.getLeaderboard(gameId),
+
+  showLeaderboard: (gameId: number) =>
+    api.showLeaderboard(gameId),
 };

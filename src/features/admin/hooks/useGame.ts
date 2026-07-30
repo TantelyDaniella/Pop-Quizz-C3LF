@@ -55,6 +55,14 @@ export function useOpenNextQuestion() {
 }
 
 
+export function useShowLeaderboard() {
+  const { mutate: showLeaderboard, isPending } = useMutation({
+    mutationFn: (gameId: number) => GameService.showLeaderboard(gameId),
+  });
+
+  return { showLeaderboard, isPending };
+}
+
 /**
  * Classement complet d'une partie (tous les joueurs).
  */
