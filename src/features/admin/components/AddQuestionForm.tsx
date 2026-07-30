@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft, Plus, Trash2, X } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, X, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { Portal } from "./Portal";
 import type { QuestionChoice, QuestionCategory, QuestionType, QuestionDifficulty, CreateQuestionPayload } from "../types/question";
@@ -13,7 +13,7 @@ type FormData = {
 type FormErrors = { statement?: string; category?: string; type?: string; difficulty?: string; duration?: string; points?: string; explanation?: string; choices?: string };
 
 export default function AddQuestionForm({ onClose }: Props) {
-  const { submitQuestion } = useCreateQuestion();
+  const { submitQuestion, isPending } = useCreateQuestion();
   const [step, setStep] = useState<1 | 2>(1);
 
   const [formData, setFormData] = useState<FormData>({
@@ -109,7 +109,7 @@ export default function AddQuestionForm({ onClose }: Props) {
               <h2 className="text-lg font-semibold text-gray-900">Ajouter une question</h2>
               <p className="mt-1 text-xs text-gray-500">{step === 1 ? "Informations générales de la question" : "Ajoutez les choix de réponse"}</p>
             </div>
-            <button type="button" onClick={onClose} className="rounded-lg p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"><X size={20} /></button>
+            <button type="button" onClick={onClose} disabled={isPending} className="rounded-lg p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-50"><X size={20} /></button>
           </div>
 
           <div className="flex items-center border-b border-gray-100 px-6 py-4">
@@ -239,16 +239,19 @@ export default function AddQuestionForm({ onClose }: Props) {
 
           <div className="flex items-center justify-between border-t border-gray-200 px-6 py-4">
             {step === 1 ? (
-              <button type="button" onClick={onClose} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50">Annuler</button>
+              <button type="button" onClick={onClose} disabled={isPending} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50">Annuler</button>
             ) : (
-              <button type="button" onClick={() => setStep(1)} className="flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50">
+              <button type="button" onClick={() => setStep(1)} disabled={isPending} className="flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50">
                 <ArrowLeft size={16} /> Retour
               </button>
             )}
             {step === 1 ? (
               <button type="button" onClick={handleNext} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700">Suivant</button>
             ) : (
-              <button type="button" onClick={handleSubmit} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700">Créer la question</button>
+              <button type="button" onClick={handleSubmit} disabled={isPending} className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50">
+                {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+                {isPending ? "Création..." : "Créer la question"}
+              </button>
             )}
           </div>
         </div>
