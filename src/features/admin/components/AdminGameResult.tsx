@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Trophy, Target, Ban, Zap, Clock, Crown } from "lucide-react";
+import { Trophy, Target, Ban, Zap, Clock, Crown, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { ContestService } from "@/features/game-engine/services/contest.service";
 import type { LeaderboardEntry } from "../types/quiz";
@@ -23,8 +23,9 @@ export default function AdminGameResults({ gameId }: Props) {
 
   if (loading) {
     return (
-      <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center text-slate-500 shadow-sm">
-        Chargement du classement...
+      <div className="rounded-2xl border border-slate-200 bg-white p-10 text-center text-slate-500 shadow-sm flex items-center justify-center gap-2">
+        <Loader2 className="h-5 w-5 animate-spin" />
+        Chargement...
       </div>
     );
   }

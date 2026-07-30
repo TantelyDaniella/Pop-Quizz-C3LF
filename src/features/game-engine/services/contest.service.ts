@@ -26,7 +26,6 @@ export const ContestService = {
       : api.join(id, playerId),
 
   getMyLeaderboard: async (gameId: number) => {
-    console.log("getMyLeaderboard request:", { gameId });
     const res = USE_MOCK
       ? {
           gameId,
@@ -42,7 +41,6 @@ export const ContestService = {
         }
       : (await api.leaderboardMe(gameId)) as { data: LeaderboardEntry[] };
     const entry = Array.isArray(res) ? res[0] : (res as { data: LeaderboardEntry[] }).data?.[0] ?? res;
-    console.log("getMyLeaderboard response:", entry);
     return entry;
   },
 
@@ -58,9 +56,7 @@ export const ContestService = {
     questionId: number,
     payload: { answer: string }
   ) => {
-    console.log("submitAnswer request:", { gameId, questionId, payload });
     const res = await api.submitAnswer(gameId, questionId, payload);
-    console.log("submitAnswer response:", res);
     return res;
   },
 };

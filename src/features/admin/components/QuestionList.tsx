@@ -69,7 +69,7 @@ export default function QuestionList({ category, search = "" }: Props) {
                   <td className="px-6 py-4 text-center text-sm font-medium text-white">{question.points}</td>
                   <td className="px-6 py-4">
                     <div className="flex justify-end gap-2">
-                      <button type="button" onClick={() => console.log("Modifier :", question.questionId)}
+                      <button type="button" onClick={() => {}}
                         className="flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700">
                         <Pencil size={16} /> Modifier
                       </button>

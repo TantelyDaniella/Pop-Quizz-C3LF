@@ -16,20 +16,10 @@ export function useOpenNextQuestion() {
     error,
   } = useMutation({
     mutationFn: (gameId: number) => {
-      console.log(
-        "📡 POST open-next-question :",
-        gameId
-      );
-
       return GameService.openNextQuestion(gameId);
     },
 
-    onSuccess: (response) => {
-      console.log(
-        "✅ Question ouverte côté backend :",
-        response
-      );
-    },
+    onSuccess: (response) => {},
 
     onError: (error: any) => {
       console.error(

@@ -115,8 +115,6 @@ export default function QuizQuestionPage() {
     }
 
     const joinGame = () => {
-      console.log("👤 Admin rejoint la game :", numericGameId);
-
       socket.emit("join-game", numericGameId);
 
       setIsSocketReady(true);
@@ -149,8 +147,6 @@ export default function QuizQuestionPage() {
     const handleQuestionOpened = (
       data: QuestionOpenedPayload
     ) => {
-      console.log("🔥 QUESTION REÇUE (question:opened) :", data);
-
       setQuestion(data.question);
       setQuestionReceivedAt(Date.now());
       openingQuestionRef.current = false;
@@ -188,12 +184,7 @@ export default function QuizQuestionPage() {
     const handleQuestionClosed = (
       data: QuestionClosedPayload
     ) => {
-      console.log("📊 QUESTION FERMÉE (question:closed) :", data);
-
       if (!data.progress) {
-        console.warn(
-          "⚠️ question:closed reçu sans champ 'progress' — stats non mises à jour"
-        );
         return;
       }
 
@@ -211,27 +202,7 @@ export default function QuizQuestionPage() {
     };
   }, [socket]);
 
-  /*
-   * =====================================================
-   * DEBUG TEMPORAIRE (à retirer une fois validé)
-   * =====================================================
-   */
 
-  useEffect(() => {
-    if (!socket) {
-      return;
-    }
-
-    const logAny = (event: string, ...args: unknown[]) => {
-      console.log("📩 EVENT REÇU :", event, args);
-    };
-
-    socket.onAny(logAny);
-
-    return () => {
-      socket.offAny(logAny);
-    };
-  }, [socket]);
 
   /*
    * =====================================================
@@ -251,21 +222,13 @@ export default function QuizQuestionPage() {
     }
 
     if (openingQuestionRef.current) {
-      console.log("⏳ Ouverture déjà en cours...");
       return;
     }
 
     openingQuestionRef.current = true;
 
-    console.log(
-      "➡️ Ouverture de la question du quiz",
-      numericGameId
-    );
-
     openNextQuestion(numericGameId, {
-      onSuccess: () => {
-        console.log("✅ Requête open-next-question réussie");
-      },
+      onSuccess: () => {},
 
       onError: (error: OpenQuestionError) => {
         openingQuestionRef.current = false;
@@ -278,7 +241,6 @@ export default function QuizQuestionPage() {
           status === 404 &&
           message === "Aucune question en attente."
         ) {
-          console.log("🏁 Plus de question en attente, quiz terminé.");
           setQuestion(null);
           setIsQuizFinished(true);
           return;
@@ -333,7 +295,6 @@ const handleEndQuiz = () => {
 
   endQuiz(numericGameId, {
     onSuccess: () => {
-      console.log("✅ Quiz terminé");
       setQuestion(null);
       setIsQuizFinished(true);
     },
