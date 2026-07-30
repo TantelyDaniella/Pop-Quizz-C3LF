@@ -5,7 +5,7 @@ import {
   useRef,
 } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Play } from "lucide-react";
+import { Play, Loader2, List } from "lucide-react";
 
 import LiveQuestion, {
   type Answer,
@@ -14,7 +14,7 @@ import AdminGameResults from "../components/AdminGameResult";
 import ConfirmModal from "../components/ConfirmationModal";
 
 import { SocketContext } from "../../../app/context/SocketContext";
-import { useOpenNextQuestion } from "../hooks/useGame";
+import { useOpenNextQuestion, useShowLeaderboard } from "../hooks/useGame";
 import { useQuizById, useStartQuiz,useEndQuiz } from "../hooks/useQuiz";
 
 interface QuestionData {
@@ -92,6 +92,7 @@ export default function QuizLivePage() {
   } = useOpenNextQuestion();
 
   const { endQuiz, isPending: isEndingQuiz } = useEndQuiz();
+  const { showLeaderboard, isPending: isShowingLeaderboard } = useShowLeaderboard();
 
   const [question, setQuestion] =
     useState<QuestionData | null>(null);
@@ -438,10 +439,27 @@ export default function QuizLivePage() {
 
         {/* Résultats finaux */}
         {isQuizFinished && (
-          <AdminGameResults
-            gameId={numericGameId}
-            onBackToLobby={handleBackToLobby}
-          />
+          <div className="space-y-4">
+            <AdminGameResults
+              gameId={numericGameId}
+              onBackToLobby={handleBackToLobby}
+            />
+            <div className="flex justify-center">
+              <button
+                type="button"
+                onClick={() => showLeaderboard(numericGameId)}
+                disabled={isShowingLeaderboard}
+                className="flex items-center gap-2 rounded-xl bg-purple-600 px-6 py-3 font-semibold text-white transition hover:bg-purple-700 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isShowingLeaderboard ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <List className="h-5 w-5" />
+                )}
+                Afficher les leaderboards des participants
+              </button>
+            </div>
+          </div>
         )}
 
         {/* Quiz pas encore démarré : écran "Prêt à commencer" (ex-QuizLivePage) */}
@@ -513,6 +531,8 @@ export default function QuizLivePage() {
             totalPlayers={stats.totalPlayers}
             correctPercentage={stats.correctPercentage}
             incorrectPercentage={stats.incorrectPercentage}
+            isOpeningNext={isOpeningQuestion}
+            isEndingQuiz={isEndingQuiz}
             onNext={handleOpenQuestion}
             onEndQuiz={handleEndQuiz}
           />

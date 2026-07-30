@@ -6,6 +6,7 @@ import {
   Trophy,
   Users,
   XCircle,
+  Loader2,
 } from "lucide-react";
 
 export interface Answer {
@@ -38,6 +39,8 @@ interface LiveQuestionProps {
   correctPercentage: number;
   incorrectPercentage: number;
 
+  isOpeningNext?: boolean;
+  isEndingQuiz?: boolean;
   onNext: () => void;
   onEndQuiz: () => void;
 }
@@ -55,6 +58,8 @@ export default function LiveQuestion({
   totalPlayers,
   correctPercentage,
   incorrectPercentage,
+  isOpeningNext,
+  isEndingQuiz,
   onNext,
   onEndQuiz,
 }: LiveQuestionProps) {
@@ -358,19 +363,29 @@ export default function LiveQuestion({
             <button
               type="button"
               onClick={onEndQuiz}
-              className="flex items-center gap-2 rounded-xl bg-green-600 px-6 py-3 font-semibold text-white transition hover:bg-green-700"
+              disabled={isEndingQuiz}
+              className="flex items-center gap-2 rounded-xl bg-green-600 px-6 py-3 font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Voir le résultat
-              <Trophy size={18} />
+              {isEndingQuiz ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <Trophy size={18} />
+              )}
+              {isEndingQuiz ? "Terminaison..." : "Voir le résultat"}
             </button>
           ) : (
             <button
               type="button"
               onClick={onNext}
-              className="flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
+              disabled={isOpeningNext}
+              className="flex items-center gap-2 rounded-xl bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Question suivante
-              <ArrowRight size={18} />
+              {isOpeningNext ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <ArrowRight size={18} />
+              )}
+              {isOpeningNext ? "Ouverture..." : "Question suivante"}
             </button>
           )}
 
