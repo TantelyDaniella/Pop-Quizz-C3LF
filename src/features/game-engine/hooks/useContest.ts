@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useReducer, useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ContestService } from "../services/contest.service";
 import useSocket from "@/features/game-engine/hooks/useSocket";
 import type { GameState, Question } from "../types/game.types";
@@ -10,31 +10,47 @@ const USE_MOCK = import.meta.env.VITE_USE_MOCK === "true";
 
 export type Contest = { gameId: number; title: string; status: "waiting" | "running" | "finished"; totalQuestions?: number };
 
+const CONTEST_KEY = ["contests"];
+
 export function useContests() {
   const socket = useSocket();
-  const [contests, setContests] = useState<Contest[]>([]);
+  const queryClient = useQueryClient();
+
+  const { data: contests = [] } = useQuery<Contest[]>({
+    queryKey: CONTEST_KEY,
+    queryFn: () => [],
+    staleTime: Infinity,
+  });
 
   useEffect(() => {
     socket.emit("join-lobby");
 
     const onCreated = ({ game }: { game: Contest }) => {
       console.log("onCreated received:", game);
-      setContests(prev => prev.some(c => c.gameId === game.gameId) ? prev : [...prev, game]);
+      queryClient.setQueryData<Contest[]>(CONTEST_KEY, (prev = []) =>
+        prev.some(c => c.gameId === game.gameId) ? prev : [...prev, game],
+      );
     };
 
     const onUpdated = ({ updatedGame }: { updatedGame: Contest }) => {
       console.log("onUpdated received:", updatedGame);
-      setContests(prev => prev.map(c => c.gameId === updatedGame.gameId ? updatedGame : c));
+      queryClient.setQueryData<Contest[]>(CONTEST_KEY, (prev = []) =>
+        prev.map(c => c.gameId === updatedGame.gameId ? updatedGame : c),
+      );
     };
 
     const onStarted = ({ game }: { game: Contest }) => {
       console.log("game:started received:", game);
-      setContests(prev => prev.map(c => c.gameId === game.gameId ? { ...c, status: "running", totalQuestions: game.totalQuestions ?? c.totalQuestions } : c));
+      queryClient.setQueryData<Contest[]>(CONTEST_KEY, (prev = []) =>
+        prev.map(c => c.gameId === game.gameId ? { ...c, status: "running", totalQuestions: game.totalQuestions ?? c.totalQuestions } : c),
+      );
     };
 
     const onEnded = ({ game }: { game: Contest }) => {
       console.log("game:ended received:", game);
-      setContests(prev => prev.map(c => c.gameId === game.gameId ? { ...c, status: "finished" } : c));
+      queryClient.setQueryData<Contest[]>(CONTEST_KEY, (prev = []) =>
+        prev.map(c => c.gameId === game.gameId ? { ...c, status: "finished" } : c),
+      );
     };
 
     socket.on("created-game", onCreated);
@@ -48,7 +64,7 @@ export function useContests() {
       socket.off("game:started", onStarted);
       socket.off("game:ended", onEnded);
     };
-  }, [socket]);
+  }, [socket, queryClient]);
 
   return { contests };
 }
