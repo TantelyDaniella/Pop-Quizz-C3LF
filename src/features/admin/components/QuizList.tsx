@@ -92,18 +92,18 @@ export default function QuizList({ category, search = "" }: Props) {
                       )}
                       {quiz.status === "running" && (
                         <>
-                          <button type="button" onClick={() => console.log("Voir le quiz :", quiz.gameId)}
+                          <button type="button" onClick={() => {}}
                             className="flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700">
                             <Eye size={16} /> Voir
                           </button>
-                          <button type="button" onClick={() => console.log("Terminer le quiz :", quiz.gameId)}
+                          <button type="button" onClick={() => {}}
                             className="flex items-center gap-2 rounded-lg bg-orange-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-orange-700">
                             <Square size={16} /> Terminer
                           </button>
                         </>
                       )}
                       {quiz.status === "finished" && (
-                        <button type="button" onClick={() => console.log("Voir les résultats :", quiz.gameId)}
+                        <button type="button" onClick={() => {}}
                           className="flex items-center gap-2 rounded-lg bg-purple-600 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-purple-700">
                           <Trophy size={16} /> Résultats
                         </button>

@@ -59,11 +59,9 @@ export const mockSocket = {
   emit: (event: string, payload?: unknown) => {
     if (event === "join-lobby") {
       timers.push(setTimeout(() => {
-        console.log("Game created:", mockContests[0]);
         emit("created-game", { game: mockContests[0] });
       }, 200));
       timers.push(setTimeout(() => {
-        console.log("Game created:", mockContests[1]);
         emit("created-game", { game: mockContests[1] });
       }, 400));
       timers.push(setTimeout(() => emit("updated-game", { updatedGame: { ...mockContests[1], status: "running" } }), 3000));

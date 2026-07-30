@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { Trophy, Target, Zap, Clock, Crown, Ban, RotateCcw } from "lucide-react";
+import { Trophy, Target, Zap, Clock, Crown, Ban, RotateCcw, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import type { LeaderboardEntry } from "../types/game.types";
 import { useEffect, useState } from "react";
@@ -27,7 +27,7 @@ export default function LeaderboardPage() {
     const { setJoinedContest } = useContestContext();
     const gameId = (location.state as { gameId?: number } | null)?.gameId;
     const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
-    const [, setLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         if (!gameId) { setLoading(false); return; }
@@ -41,6 +41,13 @@ export default function LeaderboardPage() {
         <div className="flex flex-col items-center justify-center h-full gap-4">
             <Trophy className="w-12 h-12 text-(--secondary-text)" />
             <p className="text-(--secondary-text)">Aucune partie sélectionnée.</p>
+        </div>
+    );
+
+    if (loading) return (
+        <div className="flex items-center justify-center h-full gap-2 text-(--secondary-text)">
+            <Loader2 className="h-5 w-5 animate-spin" />
+            Chargement...
         </div>
     );
 

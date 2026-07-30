@@ -26,28 +26,24 @@ export function useContests() {
     socket.emit("join-lobby");
 
     const onCreated = ({ game }: { game: Contest }) => {
-      console.log("onCreated received:", game);
       queryClient.setQueryData<Contest[]>(CONTEST_KEY, (prev = []) =>
         prev.some(c => c.gameId === game.gameId) ? prev : [...prev, game],
       );
     };
 
     const onUpdated = ({ updatedGame }: { updatedGame: Contest }) => {
-      console.log("onUpdated received:", updatedGame);
       queryClient.setQueryData<Contest[]>(CONTEST_KEY, (prev = []) =>
         prev.map(c => c.gameId === updatedGame.gameId ? updatedGame : c),
       );
     };
 
     const onStarted = ({ game }: { game: Contest }) => {
-      console.log("game:started received:", game);
       queryClient.setQueryData<Contest[]>(CONTEST_KEY, (prev = []) =>
         prev.map(c => c.gameId === game.gameId ? { ...c, status: "running", totalQuestions: game.totalQuestions ?? c.totalQuestions } : c),
       );
     };
 
     const onEnded = ({ game }: { game: Contest }) => {
-      console.log("game:ended received:", game);
       queryClient.setQueryData<Contest[]>(CONTEST_KEY, (prev = []) =>
         prev.map(c => c.gameId === game.gameId ? { ...c, status: "finished" } : c),
       );
@@ -165,22 +161,18 @@ export function useGame() {
 
   useEffect(() => {
     const onStarted = (data?: unknown) => {
-      console.log("game:started payload:", data);
       dispatch({ type: "GAME_STARTED" });
     };
     const onQuestionOpened = (data: { question: Question }) => {
-      console.log("question:opened payload:", data.question);
       dispatch({ type: "QUESTION_OPENED", question: data.question });
     };
     const onQuestionClosed = (data: { contestQuestionId: number; correctAnswer: unknown; progress: { answeredCount: number; totalParticipants: number } }) =>
       dispatch({ type: "QUESTION_CLOSED", ...data });
     const onEnded = (data?: unknown) => {
-      console.log("game:ended payload:", data);
       dispatch({ type: "GAME_ENDED" });
     };
 
     const onShowLeaderboard = (data: { gameId: number }) => {
-      console.log("show-leaderboard payload:", data);
       localStorage.setItem("leaderboardGameId", String(data.gameId));
       dispatch({ type: "SHOW_LEADERBOARD" });
     };

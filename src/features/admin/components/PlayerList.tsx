@@ -1,4 +1,4 @@
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Loader2 } from "lucide-react";
 import { usePlayer, useDeletePlayer } from "../hooks/usePlayer";
 import { useState } from "react";
 import type { Player } from "../types/player";
@@ -13,7 +13,7 @@ export default function PlayerList({ category, search = "" }: Props) {
   const [playerToDelete, setPlayerToDelete] = useState<Player | null>(null);
 
   if (isLoading) {
-    return <div className="flex items-center justify-center py-10"><p className="text-sm text-gray-500">Chargement des joueurs...</p></div>;
+    return <div className="flex items-center justify-center gap-2 py-10"><Loader2 className="h-5 w-5 animate-spin text-gray-500" /><p className="text-sm text-gray-500">Chargement...</p></div>;
   }
 
   if (error) {
@@ -25,7 +25,7 @@ export default function PlayerList({ category, search = "" }: Props) {
     return !searchValue || player.username.toLowerCase().includes(searchValue) || player.email.toLowerCase().includes(searchValue);
   });
 
-  const handleEdit = (playerId: number) => { console.log("Modifier le joueur :", playerId); };
+  const handleEdit = (playerId: number) => {};
 
   return (
     <div className="w-full">
