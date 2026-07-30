@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Trophy, RotateCcw, Target, Ban, Zap, Clock, Crown } from "lucide-react";
 import { motion } from "framer-motion";
-import { AdminGameService } from "../services/admin.game.service";
+import { ContestService } from "@/features/game-engine/services/contest.service";
 import type { LeaderboardEntry } from "../types/quiz";
 import LeaderboardEntryRow from "@/features/game-engine/components/LeaderboardEntryRow";
 
@@ -15,16 +15,9 @@ export default function AdminGameResults({ gameId, onBackToLobby }: Props) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    AdminGameService.getLeaderboard(gameId)
-      .then((res) => {
-        console.log("[AdminGameResult] Raw response:", res);
-        const leaderboard = (res as { data?: { leaderboard?: LeaderboardEntry[] } })?.data?.leaderboard ?? [];
-        console.log("[AdminGameResult] Extracted leaderboard:", leaderboard);
-        setEntries(leaderboard);
-      })
-      .catch((err) => {
-        console.error("[AdminGameResult] Error fetching leaderboard:", err);
-      })
+    ContestService.getLeaderboard(gameId)
+      .then(setEntries)
+      .catch(console.error)
       .finally(() => setLoading(false));
   }, [gameId]);
 
