@@ -30,9 +30,6 @@ export const GameApi =() =>  {
 
   getLeaderboard: (gameId: number) =>
     client.get(`${gameId}/leaderboard`),
-
-  showLeaderboard: (gameId: number) =>
-    client.post(`admin/game/${gameId}/show-leaderboard`, {}),
     }
  
 };

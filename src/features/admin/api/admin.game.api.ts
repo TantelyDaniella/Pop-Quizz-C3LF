@@ -19,5 +19,7 @@ export const AdminGameApi = () => {
       client.post(`${gameId}/open-next-question`, {}),
     getLeaderboard: (gameId: number) =>
       client.get(`${gameId}/leaderboard`),
+    showLeaderboard: (gameId: number) =>
+      client.post(`${gameId}/show-leaderboard`, {}),
   };
 };
