@@ -16,7 +16,7 @@ export default function AdminGameResults({ gameId, onBackToLobby }: Props) {
 
   useEffect(() => {
     AdminGameService.getLeaderboard(gameId)
-      .then((res) => setEntries((res as { data?: LeaderboardEntry[] })?.data ?? []))
+      .then((res) => setEntries(Array.isArray(res) ? res : (res as { data?: LeaderboardEntry[] })?.data ?? []))
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [gameId]);
