@@ -442,7 +442,6 @@ export default function QuizLivePage() {
           <div className="space-y-4">
             <AdminGameResults
               gameId={numericGameId}
-              onBackToLobby={handleBackToLobby}
             />
             <div className="flex justify-center">
               <button

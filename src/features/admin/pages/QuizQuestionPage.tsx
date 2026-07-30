@@ -368,7 +368,6 @@ const handleEndQuiz = () => {
         {isQuizFinished && (
           <AdminGameResults
             gameId={numericGameId}
-            onBackToLobby={handleBackToLobby}
           />
         )}
 
