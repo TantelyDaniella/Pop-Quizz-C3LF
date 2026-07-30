@@ -9,7 +9,7 @@ import type { Contest } from "@/features/game-engine/hooks/useContest";
 type Props = { contests: Contest[] };
 
 export default function ContestSidebar({ contests }: Props) {
-  const { join } = useJoinContest();
+  const { join, isPending } = useJoinContest();
   const { joinedContest, setJoinedContest } = useContestContext();
   const playerId = getPlayerIdFromToken();
 
@@ -24,6 +24,7 @@ export default function ContestSidebar({ contests }: Props) {
                 contest={contest}
                 isJoined={joinedContest?.id === contest.gameId}
                 hasJoinedAny={!!joinedContest}
+                isPending={isPending}
                 onJoin={() => join(
                     { gameId: contest.gameId, playerId: playerId ?? 0 },
                     { onSuccess: () => setJoinedContest({ id: contest.gameId, title: contest.title, totalQuestions: contest.totalQuestions }) }

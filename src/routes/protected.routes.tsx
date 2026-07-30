@@ -30,7 +30,7 @@ export default function ProtectedRoute({
 
         // Vérification rôle
         if (requiredRole && decoded.role !== requiredRole) {
-            return <Navigate to="/" replace />;
+            return <Navigate to={decoded.role === "admin" ? "/admin" : "/"} replace />;
         }
 
         return <Outlet />;

@@ -1,4 +1,4 @@
-import { Gamepad2, Clock, Play, CheckCircle } from "lucide-react";
+import { Gamepad2, Clock, Play, CheckCircle, Loader2 } from "lucide-react";
 
 type Contest = {
     gameId: number;
@@ -12,6 +12,7 @@ type Props = {
     isJoined: boolean;
     hasJoinedAny: boolean;
     onJoin: () => void;
+    isPending?: boolean;
 };
 
 const statusConfig = {
@@ -20,7 +21,7 @@ const statusConfig = {
     finished: { icon: CheckCircle, label: "Terminé",    color: "text-gray-400"   },
 };
 
-export default function ContestCard({ contest, isJoined, hasJoinedAny, onJoin }: Props) {
+export default function ContestCard({ contest, isJoined, hasJoinedAny, onJoin, isPending }: Props) {
     const { icon: StatusIcon, label, color } = statusConfig[contest.status] ?? statusConfig.waiting;
 
     return (
@@ -35,7 +36,8 @@ export default function ContestCard({ contest, isJoined, hasJoinedAny, onJoin }:
             </div>
             {isJoined && <span className="text-xs text-primary">✓ Rejoint</span>}
             {!hasJoinedAny && contest.status === "waiting" && (
-                <button className="btn-primary text-xs py-1" onClick={onJoin}>
+                <button className="btn-primary text-xs py-1 flex items-center justify-center gap-1.5" onClick={onJoin} disabled={isPending}>
+                    {isPending && <Loader2 className="w-3 h-3 animate-spin" />}
                     Rejoindre
                 </button>
             )}
