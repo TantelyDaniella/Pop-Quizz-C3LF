@@ -1,56 +1,31 @@
-import adminMenuData, { type AdminMenuItem } from "../data/admin.menu.data";
-import { useNavigation } from "../context/NavigationContext";
-import {useState} from "react";
-import {ChevronDown} from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { adminMenuData } from "@/features/admin/data/admin.menu.data";
+import { useNavigation } from "@/app/context/NavigationContext";
 
 export default function AdminSidebar() {
-    const { page, navigateTo } = useNavigation();
-    const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const { page } = useNavigation();
 
-    const toggleSubmenu = (id: string) => {
-        setOpenSubmenu(prev => prev === id ? null : id);
-    };
-
-    return (
-        <div>
-            <div>
-                Hello
-            </div>
-            <div className="border-t border-t-gray-800/8 my-3"></div>
-            <div className="flex flex-col gap-1">
-                {adminMenuData.map((item: AdminMenuItem) => (
-                    <div key={item.id}>
-                        <button
-                            className={page === item.path ? "menu-item-active" : "menu-item"}
-                            onClick={() => { item.submenu ? toggleSubmenu(item.id) : navigateTo(item.path); }}>
-                            <item.icon size={25} className={"bg-(--primary)/5 p-1 rounded-lg"} />
-                            <span className="flex-1 text-left">
-                                {item.name}
-                            </span>
-                            {
-                                item.submenu && (
-                                    <ChevronDown
-                                        size={16}
-                                        className={`transition-transform ${openSubmenu === item.id ? "rotate-180" : ""}`}
-                                    />)
-                            }
-                        </button>
-                        {item.submenu && openSubmenu === item.id && (
-                            <div className="flex flex-col gap-1 ml-4 mt-1">
-                                {item.submenu.map((sub: AdminMenuItem) => (
-                                    <button
-                                        key={sub.id}
-                                        className={page === sub.path ? "menu-item-active" : "menu-item"}
-                                        onClick={() => navigateTo(sub.path)}>
-                                        <sub.icon size={14} />
-                                        {sub.name}
-                                    </button>
-                                ))}
-                            </div>
-                        )}
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
+  return (
+    <aside className="w-60 shrink-0 border-r border-(--border-color) p-4 flex flex-col gap-2 h-full">
+      <div className="flex items-center gap-2 mb-4">
+        <img src="/linux-pop-quizz.svg" alt="logo" className="w-8 h-8" />
+        <span className="font-medium text-sm">Admin</span>
+      </div>
+      {adminMenuData.map((item) => {
+        const Icon = item.icon;
+        const active = item.path && page.startsWith(item.path);
+        return (
+          <button
+            key={item.label}
+            onClick={() => item.path && navigate(item.path)}
+            className={active ? "menu-item-active" : "menu-item"}
+          >
+            {Icon && <Icon className="w-4 h-4 shrink-0" />}
+            {item.label}
+          </button>
+        );
+      })}
+    </aside>
+  );
 }

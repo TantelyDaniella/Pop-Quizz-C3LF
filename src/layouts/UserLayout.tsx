@@ -1,11 +1,10 @@
-import {Outlet} from "react-router-dom";
-
+import { Outlet } from "react-router-dom";
 
 export default function UserLayout() {
-    return(
-        <div className={"flex"}>
-            USER LAYOUTS...
-            <Outlet/>
-        </div>
-    )
+  return (
+    <div>
+      <p className="small-text p-4">USER LAYOUTS...</p>
+      <Outlet />
+    </div>
+  );
 }
