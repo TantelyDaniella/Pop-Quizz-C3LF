@@ -503,9 +503,15 @@ export default function QuizLivePage() {
                 type="button"
                 onClick={() => setShowStartRoundModal(true)}
                 disabled={isStarting || !isSocketReady}
-                className="flex items-center gap-3 rounded-xl bg-green-600 px-6 py-3 font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex items-center gap-3 rounded-xl bg-green-600 px-6 py-3 font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <Play size={20} />
+                {!isSocketReady ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : isStarting ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <Play size={20} />
+                )}
                 {!isSocketReady
                   ? "Connexion..."
                   : isStarting

@@ -1,5 +1,6 @@
 
 import { GameService } from "../services/game.service";
+import { AdminGameService } from "../services/admin.game.service";
 
 import {
   useMutation,
@@ -57,7 +58,7 @@ export function useOpenNextQuestion() {
 
 export function useShowLeaderboard() {
   const { mutate: showLeaderboard, isPending } = useMutation({
-    mutationFn: (gameId: number) => GameService.showLeaderboard(gameId),
+    mutationFn: (gameId: number) => AdminGameService.showLeaderboard(gameId),
   });
 
   return { showLeaderboard, isPending };

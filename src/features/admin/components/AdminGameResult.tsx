@@ -1,270 +1,129 @@
-// src/features/game-engine/components/AdminGameResults.tsx
-
-import { useState } from "react";
-import {
-  Trophy,
-  RotateCcw,
-  Target,
-  XCircle,
-  Zap,
-  Clock,
-  Medal,
-  Crown,
-  X,
-} from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useGameResults } from "../hooks/useQuiz";
-import { useGameLeaderboard } from "../hooks/useGame";
+import { useEffect, useState } from "react";
+import { Trophy, RotateCcw, Target, XCircle, Zap, Clock, Crown, Ban } from "lucide-react";
+import { motion } from "framer-motion";
+import { AdminGameService } from "../services/admin.game.service";
 import type { LeaderboardEntry } from "../types/quiz";
+import LeaderboardEntryRow from "@/features/game-engine/components/LeaderboardEntryRow";
 
-type Props = {
-  gameId: number;
-  onBackToLobby: () => void;
+type Props = { gameId: number; onBackToLobby: () => void };
+
+const rankStyle: Record<number, { text: string }> = {
+  1: { text: "text-yellow-400" },
+  2: { text: "dark:text-slate-300 text-slate-500" },
+  3: { text: "text-orange-500" },
 };
 
-type StatItemProps = {
-  icon: React.ComponentType<{ className?: string }>;
-  value: string | number;
-  label: string;
-  color: string;
-};
+const podiumOrder = [1, 0, 2];
+const podiumHeight: Record<number, string> = { 0: "h-16", 1: "h-24", 2: "h-12" };
 
-function StatItem({ icon: Icon, value, label, color }: StatItemProps) {
-  return (
-    <div className="flex items-center justify-between border-b border-(--border-color) py-4 last:border-0">
-      <div className="flex items-center gap-3">
-        <Icon className={`h-5 w-5 ${color}`} />
-        <span className="text-base text-(--secondary-text)">{label}</span>
+export default function AdminGameResults({ gameId, onBackToLobby }: Props) {
+  const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    AdminGameService.getLeaderboard(gameId)
+      .then((res) => setEntries((res as { data?: LeaderboardEntry[] })?.data ?? []))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [gameId]);
+
+  if (loading) {
+    return (
+      <div className="surface-card rounded-2xl p-10 text-center text-(--secondary-text)">
+        Chargement du classement...
       </div>
-      <span className={`text-base font-bold ${color}`}>{value}</span>
-    </div>
-  );
-}
+    );
+  }
 
-const RANK_BORDER: Record<number, string> = {
-  1: "border-yellow-400",
-  2: "border-slate-300",
-  3: "border-orange-400",
-};
-
-export default function AdminGameResults({
-  gameId,
-  onBackToLobby,
-}: Props) {
-  const { leaderboard, isLoading: isLeaderboardLoading } =
-    useGameLeaderboard(gameId);
-
-  console.log("leaderboard is:", leaderboard);
-
-  const [selectedPlayerId, setSelectedPlayerId] = useState<number | null>(
-    null
-  );
-
-  // Réponse brute de /results : { countdownSeconds, revealSchedule, leaderboard }
-  const { results, isLoading: isResultsLoading } = useGameResults(
-    gameId,
-    selectedPlayerId ?? 0,
-    selectedPlayerId !== null
-  );
-
-  const entries: LeaderboardEntry[] = leaderboard ?? [];
-
-  // NOUVEAU : on extrait l'entrée du joueur sélectionné depuis
-  // results.leaderboard, puisque /results ne renvoie pas directement
-  // les stats à plat mais un sous-tableau leaderboard.
-  const selectedPlayerResult = results?.leaderboard?.find(
-    (entry: LeaderboardEntry) => entry.playerId === selectedPlayerId
-  );
+  if (entries.length === 0) {
+    return (
+      <div className="surface-card rounded-2xl p-10 text-center text-(--secondary-text)">
+        Aucun résultat disponible pour cette partie.
+      </div>
+    );
+  }
 
   return (
-    <div className="relative flex h-full w-full overflow-hidden p-8">
-      <div className="pointer-events-none absolute left-1/2 top-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-(--primary)/8 blur-[120px]" />
+    <div className="relative w-full flex flex-col gap-6">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex items-center gap-3"
+      >
+        <div className="flex-1 h-px bg-(--border-color)" />
+        <div className="flex items-center gap-2">
+          <Trophy className="w-4 h-4 text-yellow-400" />
+          <span className="text-xs uppercase tracking-widest text-(--secondary-text)">Classement final</span>
+        </div>
+        <div className="flex-1 h-px bg-(--border-color)" />
+      </motion.div>
 
-      <div className="relative z-10 flex w-full flex-col gap-5">
-
+      {/* Podium */}
+      {entries.length >= 3 && (
         <motion.div
-          initial={{ opacity: 0, y: -10 }}
+          initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center gap-3"
+          transition={{ delay: 0.1 }}
+          className="w-full flex items-end justify-center gap-4 md:gap-12"
         >
-          <div className="h-px flex-1 bg-(--border-color)" />
-          <div className="flex items-center gap-2">
-            <Trophy className="h-4 w-4 text-yellow-400" />
-            <span className="text-md uppercase tracking-widest text-(--secondary-text)">
-              Partie terminée — Classement final
-            </span>
-          </div>
-          <div className="h-px flex-1 bg-(--border-color)" />
+          {podiumOrder.map((idx, pos) => {
+            const entry = entries[idx];
+            const isFirst = entry.rank === 1;
+            return (
+              <div key={entry.playerId} className="flex flex-col items-center gap-2">
+                {isFirst && <Crown className="w-6 h-6 text-yellow-400" />}
+                <img
+                  src={entry.avatarUrl}
+                  alt={entry.username}
+                  className={`rounded-full object-cover ${isFirst ? "w-20 h-20 border-yellow-400" : "w-14 h-14 border-(--border-color)"}`}
+                />
+                <p className="text-sm font-semibold truncate max-w-22.5 text-center">{entry.username}</p>
+                <span className={`text-sm font-black ${rankStyle[entry.rank]?.text ?? "text-primary"}`}>
+                  {entry.score} pts
+                </span>
+                <div className={`w-24 rounded-t-lg border ${podiumHeight[pos]} bg-primary`} />
+              </div>
+            );
+          })}
         </motion.div>
+      )}
 
-        {isLeaderboardLoading && (
-          <div className="surface-card rounded-2xl p-10 text-center text-(--secondary-text)">
-            Chargement du classement...
-          </div>
-        )}
+      {/* Liste */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.25 }}
+        className="rounded-xl overflow-hidden border border-(--border-color) bg-bg-main"
+      >
+        <div className="hidden md:grid grid-cols-[2rem_2.5rem_1fr_repeat(4,5rem)_4rem] gap-4 px-4 py-2 bg-(--surface)/80 border-b border-(--border-color)">
+          <span className="text-xs uppercase tracking-widest text-(--secondary-text)">#RANK</span>
+          <span />
+          <span className="text-xs uppercase tracking-widest text-(--secondary-text)">Joueur</span>
+          <span className="text-xs uppercase tracking-widest text-center text-green-400"><Target className="w-4 h-4 mx-auto" /></span>
+          <span className="text-xs uppercase tracking-widest text-center text-red-400"><Ban className="w-4 h-4 mx-auto" /></span>
+          <span className="text-xs uppercase tracking-widest text-center text-purple-400"><Zap className="w-4 h-4 mx-auto" /></span>
+          <span className="text-xs uppercase tracking-widest text-center text-blue-400"><Clock className="w-4 h-4 mx-auto" /></span>
+          <span className="text-xs uppercase tracking-widest text-(--secondary-text) text-right">Pts</span>
+        </div>
 
-        {!isLeaderboardLoading && entries.length === 0 && (
-          <div className="surface-card rounded-2xl p-10 text-center text-(--secondary-text)">
-            Aucun résultat disponible pour cette partie.
-          </div>
-        )}
+        {entries.map((entry, i) => (
+          <LeaderboardEntryRow key={entry.playerId} entry={entry} index={i} />
+        ))}
+      </motion.div>
 
-        {!isLeaderboardLoading && entries.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="flex-1 space-y-3 overflow-y-auto"
-          >
-            {entries.map((entry, index) => {
-              const rank = entry.rank ?? index + 1;
-              const playerId = entry.playerId;
-
-              return (
-                <motion.button
-                  key={playerId ?? entry.username ?? index}
-                  type="button"
-                  onClick={() =>
-                    playerId && setSelectedPlayerId(playerId)
-                  }
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.05 * index }}
-                  whileHover={{ scale: 1.01 }}
-                  className={`surface-card flex w-full items-center gap-4 rounded-2xl border p-4 text-left transition ${
-                    RANK_BORDER[rank] ?? "border-(--border-color)"
-                  } hover:border-(--primary)/50`}
-                >
-                  <div className="relative shrink-0">
-                    <img
-                      src={
-                        entry.avatarUrl ??
-                        "https://api.dicebear.com/10.x/bottts/svg?seed=default"
-                      }
-                      alt="avatar"
-                      className="h-12 w-12 rounded-xl"
-                    />
-                    {rank === 1 && (
-                      <Crown
-                        size={18}
-                        className="absolute -right-2 -top-2 rounded-full border-2 border-yellow-400 bg-bg-main p-0.5 text-yellow-400"
-                      />
-                    )}
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="rounded-full border border-(--primary)/30 bg-(--primary)/15 px-2 py-0.5 text-xs font-black text-(--primary)">
-                        #{rank}
-                      </span>
-                      <p className="truncate font-bold">
-                        {entry.username}
-                      </p>
-                    </div>
-
-                    <div className="mt-1 flex items-center gap-2 text-xs text-(--secondary-text)">
-                      <Medal className="h-3 w-3" />
-                      <span>
-                        {entry.correctAnswers ?? 0} bonnes réponses
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="shrink-0 text-right">
-                    <p className="text-2xl font-black text-(--primary)">
-                      {entry.score ?? 0}
-                    </p>
-                    <p className="text-xs uppercase tracking-wider text-(--secondary-text)">
-                      points
-                    </p>
-                  </div>
-                </motion.button>
-              );
-            })}
-          </motion.div>
-        )}
-
-        <motion.button
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.97 }}
-          onClick={onBackToLobby}
-          className="btn-primary flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl py-4 text-base"
-        >
-          <RotateCcw className="h-5 w-5" />
-          Retour au lobby
-        </motion.button>
-      </div>
-
-      {/* Panneau latéral : résultats détaillés d'un joueur */}
-      <AnimatePresence>
-        {selectedPlayerId !== null && (
-          <motion.div
-            initial={{ x: "100%", opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: "100%", opacity: 0 }}
-            transition={{ type: "spring", damping: 28, stiffness: 300 }}
-            className="surface-card absolute right-0 top-0 z-20 h-full w-full max-w-md overflow-y-auto p-6"
-          >
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold">
-                Détails du joueur
-              </h3>
-
-              <button
-                type="button"
-                onClick={() => setSelectedPlayerId(null)}
-                className="rounded-lg p-1 text-(--secondary-text) hover:bg-(--border-color)"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            {isResultsLoading && (
-              <div className="mt-8 text-center text-(--secondary-text)">
-                Chargement des résultats...
-              </div>
-            )}
-
-            {!isResultsLoading && selectedPlayerResult && (
-              <div className="mt-6">
-                <StatItem
-                  icon={Target}
-                  value={selectedPlayerResult.correctAnswers ?? 0}
-                  label="Bonnes réponses"
-                  color="text-green-400"
-                />
-                <StatItem
-                  icon={XCircle}
-                  value={selectedPlayerResult.wrongAnswers ?? 0}
-                  label="Mauvaises réponses"
-                  color="text-red-400"
-                />
-                <StatItem
-                  icon={Zap}
-                  value={selectedPlayerResult.firstBloodCount ?? 0}
-                  label="First Bloods"
-                  color="text-purple-400"
-                />
-                <StatItem
-                  icon={Clock}
-                  value={`${(selectedPlayerResult.avgResponseTime ?? 0).toFixed(1)}s`}
-                  label="Temps de réponse moyen"
-                  color="text-blue-400"
-                />
-              </div>
-            )}
-
-            {!isResultsLoading && !selectedPlayerResult && (
-              <div className="mt-8 text-center text-(--secondary-text)">
-                Aucune donnée disponible pour ce joueur.
-              </div>
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <motion.button
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.4 }}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.97 }}
+        onClick={onBackToLobby}
+        className="self-center flex items-center justify-center gap-2 py-3 px-8 rounded-xl cursor-pointer text-base border border-(--border-color) text-(--secondary-text) hover:bg-(--input-bg) transition-colors"
+      >
+        <RotateCcw className="w-5 h-5" />
+        Retour au lobby
+      </motion.button>
     </div>
   );
 }

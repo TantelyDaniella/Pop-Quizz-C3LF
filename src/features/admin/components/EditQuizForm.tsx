@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X } from "lucide-react";
+import { X, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { Portal } from "./Portal";
 import { useUpdateQuiz } from "../hooks/useQuiz";
@@ -77,7 +77,8 @@ export default function EditQuizForm({ quiz, onClose }: Props) {
 
           <div className="flex items-center justify-end gap-3 border-t border-gray-200 px-6 py-4">
             <button type="button" onClick={onClose} disabled={isPending} className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50">Annuler</button>
-            <button type="button" onClick={handleSubmit} disabled={isPending} className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50">
+            <button type="button" onClick={handleSubmit} disabled={isPending} className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50">
+              {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
               {isPending ? "Modification..." : "Enregistrer"}
             </button>
           </div>
