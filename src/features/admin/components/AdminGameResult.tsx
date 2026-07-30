@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
-import { Trophy, RotateCcw, Target, Ban, Zap, Clock, Crown } from "lucide-react";
+import { Trophy, Target, Ban, Zap, Clock, Crown } from "lucide-react";
 import { motion } from "framer-motion";
 import { ContestService } from "@/features/game-engine/services/contest.service";
 import type { LeaderboardEntry } from "../types/quiz";
 import LeaderboardEntryRow from "@/features/game-engine/components/LeaderboardEntryRow";
 
-type Props = { gameId: number; onBackToLobby: () => void };
+type Props = { gameId: number };
 
 const podiumOrder = [1, 0, 2];
 const podiumHeight: Record<number, string> = { 0: "h-16", 1: "h-24", 2: "h-12" };
 
-export default function AdminGameResults({ gameId, onBackToLobby }: Props) {
+export default function AdminGameResults({ gameId }: Props) {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -107,19 +107,6 @@ export default function AdminGameResults({ gameId, onBackToLobby }: Props) {
           ))}
         </motion.div>
 
-        {/* Back to lobby */}
-        <motion.button
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.97 }}
-          onClick={onBackToLobby}
-          className="self-center inline-flex items-center justify-center gap-2 py-3 px-8 rounded-xl cursor-pointer text-base border border-slate-200 text-slate-500 hover:bg-slate-50 transition-colors"
-        >
-          <RotateCcw className="w-5 h-5" />
-          Retour au lobby
-        </motion.button>
       </div>
     </div>
   );
